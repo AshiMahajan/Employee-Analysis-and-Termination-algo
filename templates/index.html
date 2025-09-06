@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Employee Termination Portal</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.0/css/bulma.min.css"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex: 1;
+      }
+      footer {
+        padding: 1rem;
+        background-color: #f5f5f5; /* Replace with image later */
+      }
+      .about-btn {
+        display: flex;
+        justify-content: flex-end; /* moves button to bottom right */
+        margin: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navigation -->
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item subtitle">
+          <strong>XYZ</strong>
+        </a>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a
+        href="login.html"
+        rel="noopener noreferrer"
+      >
+          <button class="button is-primary">Login</button>
+        </div>
+      </a>
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="container mt-5">
+      <h1 class="title">Employee Termination Portal</h1>
+    </main>
+
+    <!-- About Us Button (Bottom Right) -->
+    <div class="about-btn">
+      <a
+        href="https://www.google.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <button class="button is-link">About Us</button>
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="content has-text-centered">
+        <p>© <span id="year"></span> ™</p>
+      </div>
+    </footer>
+
+    <script>
+      // Auto-insert current year
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
