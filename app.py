@@ -111,9 +111,77 @@ def dashboard():
     if "user" not in session:
         flash("Please login first.")
         return redirect(url_for("login"))
+
+    # Fetch all employees from MongoDB
+    employees = list(mongo.db.employees.find({}, {"_id": 0}))  # exclude _id
+
     return render_template(
-        "dashboard.html", user=session["user"], hr_id=session["hr_id"]
+        "dashboard.html",
+        user=session["user"],
+        hr_id=session["hr_id"],
+        employees=employees,
     )
+
+
+# Enter employee data
+@app.route("/add_employee", methods=["GET", "POST"])
+def add_employee():
+    if "user" not in session:
+        flash("Please login first.")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        # Get employee details from form
+        name = request.form["name"]
+        emp_id = request.form["emp_id"]
+        dept = request.form["department"]
+        salary = request.form["salary"]
+        # Add more fields as needed
+
+        # Insert into MongoDB
+        mongo.db.employees.insert_one(
+            {
+                "name": name,
+                "emp_id": emp_id,
+                "department": dept,
+                "salary": salary,
+                # Add more fields here
+            }
+        )
+
+        flash("Employee added successfully!")
+        return redirect(url_for("dashboard"))
+
+    return render_template("add_employee.html")
+
+
+@app.route("/edit_employee/<emp_id>", methods=["GET", "POST"])
+def edit_employee(emp_id):
+    if "user" not in session:
+        flash("Please login first.")
+        return redirect(url_for("login"))
+
+    # Fetch employee details
+    emp = mongo.db.employees.find_one({"emp_id": emp_id}, {"_id": 0})
+    if not emp:
+        flash("Employee not found.")
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        # Update employee details from form
+        name = request.form.get("name")
+        department = request.form.get("department")
+        salary = request.form.get("salary")
+
+        mongo.db.employees.update_one(
+            {"emp_id": emp_id},
+            {"$set": {"name": name, "department": department, "salary": salary}},
+        )
+
+        flash("Employee updated successfully!")
+        return redirect(url_for("dashboard"))
+
+    return render_template("edit_employee.html", employee=emp)
 
 
 # Logout
