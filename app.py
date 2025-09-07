@@ -1,20 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_pymongo import PyMongo
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # needed for sessions
+app.secret_key = "your_secret_key"
 
-# Temporary in-memory user store
-users = {}  # { "email": {"name": ..., "password": ...} }
+# MongoDB connection string (default localhost:27017)
+app.config["MONGO_URI"] = "mongodb://localhost:27017/employee_portal"
+mongo = PyMongo(app)
 
 
-# Home route
+# Home route → directly render home page
 @app.route("/")
 def index():
-    return redirect(url_for("home"))
-
-
-@app.route("/home")
-def home():
     return render_template("home.html")
 
 
@@ -26,31 +23,36 @@ def signup():
         email = request.form["email"]
         password = request.form["password"]
 
-        if email in users:
+        # Check if user exists
+        if mongo.db.users.find_one({"email": email}):
             flash("Account already exists. Please login.")
             return redirect(url_for("login"))
 
-        # For short term, instead of DB, we use in-memory store
-        users[email] = {"name": name, "password": password}
+        # Insert user into MongoDB
+        mongo.db.users.insert_one({"name": name, "email": email, "password": password})
+
         flash("Account created successfully! Please login.")
         return redirect(url_for("login"))
 
     return render_template("signup.html")
 
 
+# Login Page
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
 
-        user = users.get(email)
-        if user and user["password"] == password:
-            session["user"] = user["name"]
+        # Match both email and password
+        user = mongo.db.users.find_one({"email": email, "password": password})
+        if user:
+            session["user"] = user["name"]  # ✅ store in session
+            flash("Login successful!")
             return redirect(url_for("dashboard"))
-        else:
-            flash("Invalid email or password")
-            return redirect(url_for("login"))
+
+        flash("Invalid email or password.")
+        return redirect(url_for("login"))
 
     return render_template("login.html")
 
