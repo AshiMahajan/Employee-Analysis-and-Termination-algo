@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.0/css/bulma.min.css"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 220px;
+        background-color: #2c3e50; /* Dark blue-gray */
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        color: white;
+      }
+
+      /* Divider between sidebar & content */
+      .divider-vertical {
+        width: 4px;
+        background-color: #2c3e50;
+      }
+
+      /* Container layout */
+      .container-flex {
+        display: flex;
+        height: 100vh;
+      }
+
+      /* Main content wrapper */
+      .main-content-wrapper {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Horizontal bar */
+      .horizontal-bar {
+        height: 55px;
+        background-color: #2c3e50;
+        display: flex;
+        justify-content: space-between; /* space between greeting (left) and welcome (right) */
+        align-items: center;
+        padding: 0 1rem;
+        color: white;
+      }
+
+      /* Main content */
+      .main-content {
+        flex-grow: 1;
+        padding: 2rem;
+        background-color: #f9f9f9;
+      }
+
+      /* Welcome dropdown */
+      .welcome {
+        position: relative;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .welcome span {
+        display: block;
+        padding: 0.5rem 1rem;
+        background-color: #2c3e50;
+        color: white;
+      }
+      .logout-btn {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #e74c3c;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0 0 5px 5px;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .welcome:hover .logout-btn {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-flex">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Only Employees Button -->
+        <div style="margin-top: 35%">
+          <a
+            href="{{ url_for('dashboard') }}"
+            class="button is-light is-fullwidth"
+          >
+            Employees
+          </a>
+        </div>
+      </div>
+
+      <!-- Vertical Divider -->
+      <div class="divider-vertical"></div>
+
+      <!-- Main Content Area -->
+      <div class="main-content-wrapper">
+        <!-- Horizontal Bar -->
+        <div class="horizontal-bar">
+          <!-- Left side: Greeting -->
+          <div id="greeting"></div>
+
+          <!-- Right side: Welcome dropdown -->
+          <div class="welcome">
+            <span>
+              <img
+                src="{{ url_for('static', filename='images/icons8-user-50.png') }}"
+                alt="User Icon"
+                width="32 px"
+                height="32 px"
+              />
+            </span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">{% block content %}{% endblock %}</div>
+      </div>
+    </div>
+
+    <!-- Script for dynamic greeting -->
+    <script>
+      function getGreeting() {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Good Morning";
+        if (hour < 18) return "Good Afternoon";
+        return "Good Evening";
+      }
+      document.getElementById("greeting").innerText =
+        getGreeting() + ", {{ user }}!";
+    </script>
+  </body>
+</html>
