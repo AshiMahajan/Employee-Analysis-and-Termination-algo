@@ -106,7 +106,7 @@
 
       <!-- Vertical Divider -->
       <div class="divider-vertical"></div>
-
+      {% block horizontal_bar %}
       <!-- Main Content Area -->
       <div class="main-content-wrapper">
         <!-- Horizontal Bar -->
@@ -123,10 +123,12 @@
                 width="32 px"
                 height="32 px"
               />
+              {{ user }}!
             </span>
             <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
           </div>
         </div>
+        {% endblock %}
 
         <!-- Main Content -->
         <div class="main-content">{% block content %}{% endblock %}</div>
