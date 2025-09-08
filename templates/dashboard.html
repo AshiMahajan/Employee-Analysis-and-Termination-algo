@@ -1,137 +1,43 @@
-<!-- <!DOCTYPE html>
-<html>
-  <head>
-    <title>Dashboard</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.0/css/bulma.min.css"
-    />
-  </head>
-  <body class="has-background-light">
-    <section class="section">
-      <div class="container">
-        <h1 class="title">Welcome, {{ user }}!</h1>
-      </div>
-    </section>
-    <div class="is-flex">
-      <div class="is-flex-column">
-        <div class="field mt-4">
-          <a href="{{ url_for('add_employee') }}" class="button is-primary">
-            Add Employee
-          </a>
-        </div>
-        <footer>
-          <a href="{{ url_for('logout') }}" class="button is-danger mt-4"
-            >Logout</a
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
+content %}
+<span class="is-breadcrumb" aria-label="breadcrumbs">
+  <a href="{{ url_for('add_employee') }}" class="button is-primary mb-4"
+    >Add New Employee</a
+  >
+</span>
+<div class="table-container" style="margin-top: 2.5%">
+  <table class="table is-fullwidth">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Employee ID</th>
+        <th>Department</th>
+        <th>Salary</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for emp in employees %}
+      <tr>
+        <td>{{ emp['name'] }}</td>
+        <td>{{ emp['emp_id'] }}</td>
+        <td>{{ emp['department'] }}</td>
+        <td>{{ emp['salary'] }}</td>
+        <td>
+          <a
+            href="{{ url_for('edit_employee', emp_id=emp['emp_id']) }}"
+            class="button is-small is-info"
           >
-        </footer>
-      </div>
-    </div>
-    <div>
-      <div class="mt-5">
-        <h2 class="subtitle">Your Employees</h2>
-      </div>
-    </div>
-  </body>
-</html> -->
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Dashboard</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.0/css/bulma.min.css"
-    />
-    <style>
-      html,
-      body {
-        height: 100%;
-      }
-      .sidebar {
-        width: 30%;
-        /* min-height: 100vh; */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 1rem;
-        background-color: #f5f5f5;
-      }
-      .main-content {
-        width: 70%;
-        padding: 2rem;
-      }
-      .container-flex {
-        display: flex;
-      }
-    </style>
-  </head>
-  <body class="has-background-light">
-    <section class="section has-text-right">
-      <div class="container">
-        <h1 class="subtitle">Welcome, {{ user }}!</h1>
-      </div>
-    </section>
-
-    <div class="container-flex">
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <!-- Top -->
-        <div>
-          <a href="{{ url_for('add_employee') }}" class="button is-primary">
-            Add Employee
+            Edit
           </a>
-        </div>
-        <!-- Bottom -->
-        <!-- <div>
-          <a href="{{ url_for('logout') }}" class="button is-danger">
-            Logout
-          </a>
-        </div> -->
-      </div>
-
-      <!-- Main Content -->
-      <div class="main-content">
-        <h2 class="subtitle">Your Employees</h2>
-        <!-- Employee list or table goes here -->
-        <div class="table-container">
-          <table class="table is-fullwidth">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Employee ID</th>
-                <th>Department</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for emp in employees %}
-              <tr>
-                <td>{{ emp['name'] }}</td>
-                <td>{{ emp['emp_id'] }}</td>
-                <td>{{ emp['department'] }}</td>
-                <td>{{ emp['salary'] }}</td>
-                <td>
-                  <a
-                    href="{{ url_for('edit_employee', emp_id=emp['emp_id']) }}"
-                    class="button is-small is-info"
-                  >
-                    Edit
-                  </a>
-                  </a>
-                </td>
-              </tr>
-              {% else %}
-              <tr>
-                <td colspan="5" class="has-text-centered">
-                  No employees found.
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="has-text-centered">No employees found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
