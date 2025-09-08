@@ -145,21 +145,128 @@
         max-height: 200px;
         opacity: 1;
       }
+      a.dropdown-item:hover {
+        background-color: transparent;
+      }
+      .zoom_hover{
+        font-size: 18px;
+        color: antiquewhite;
+        transition: transform 0.2s ease-in-out;
+        display: inline-block;
+        }
+
+       .zoom_hover:hover {
+        transform: scale(1.1);
+        }
     </style>
   </head>
   <body>
     <div class="container-flex">
       <!-- Sidebar -->
-      <div class="sidebar">
+      <div class="sidebar" style="justify-content: center">
         <!-- Only Employees Button -->
-        <div style="margin-top: 35%">
+        <div style="display: flex; flex-direction: column; gap: 100px">
+          <!-- Dashboard button -->
           <a
             href="{{ url_for('dashboard') }}"
             class="button is-light is-fullwidth"
           >
-            Employees
+            Dashboard
+          </a>
+
+          <!-- Employees dropdown -->
+          <div class="dropdown is-fullwidth" id="employeeDropdown">
+            <div class="dropdown-trigger" style="width: 100%">
+              <button
+                class="button is-light is-fullwidth"
+                aria-haspopup="true"
+                aria-controls="dropdown-menu"
+                onclick="toggleDropdown()"
+              >
+                <span>Employees</span>
+                <span class="icon is-small">
+                  <i class="fas fa-angle-down" aria-hidden="true"></i>
+                </span>
+              </button>
+            </div>
+            <div
+              class="dropdown-menu"
+              id="dropdown-menu"
+              role="menu"
+              style="width: 100%; text-align: center"
+            >
+              <div
+                class="dropdown-content"
+                style="
+                  background-color: #2c3e50;
+                  box-shadow: none;
+                  padding: 0px;
+                "
+              >
+                <a
+                  href="{{ url_for('dashboard') }}"
+                  class="dropdown-item"
+                  style="color: antiquewhite; display: flex;
+                        flex-direction: row;
+                        justify-content: space-evenly;"
+                >
+                  <span></span><img
+                src="{{ url_for('static', filename='images/icons8-branch-50.png') }}"
+                alt="User Icon"
+                width="24"
+                height="24"
+                    >
+                    <span class="zoom_hover" style="font-size: 18px; color: antiquewhite"
+                      >Manager</span
+                    ></span
+                  >
+                  <!-- Arrow style -->
+                </a>
+                <a
+                  href="{{ url_for('add_employee') }}"
+                  class="dropdown-item"
+                  style="color: antiquewhite; display: flex;
+                        flex-direction: row;
+                        justify-content: space-evenly;"
+                >
+                  <span></span><img
+                src="{{ url_for('static', filename='images/icons8-branch-50.png') }}"
+                alt="User Icon"
+                width="24"
+                height="24"
+                    >
+                    <span class="zoom_hover" style="font-size: 18px; color: antiquewhite"
+                      >Associate</span
+                    ></span
+                  >
+                  <!-- Arrow style -->
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Department button -->
+          <a
+            href="{{ url_for('dashboard') }}"
+            class="button is-light is-fullwidth"
+          >
+            Department
           </a>
         </div>
+
+        <!-- FontAwesome for arrow icon -->
+        <script
+          src="https://kit.fontawesome.com/a076d05399.js"
+          crossorigin="anonymous"
+        ></script>
+
+        <!-- Toggle Script -->
+        <script>
+          function toggleDropdown() {
+            const dropdown = document.getElementById("employeeDropdown");
+            dropdown.classList.toggle("is-active");
+          }
+        </script>
       </div>
 
       <!-- Vertical Divider -->
