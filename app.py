@@ -152,7 +152,11 @@ def add_employee():
         flash("Employee added successfully!")
         return redirect(url_for("dashboard"))
 
-    return render_template("add_employee.html")
+    return render_template(
+        "add_employee.html",
+        user=session["user"],
+        hr_id=session["hr_id"],
+    )
 
 
 @app.route("/edit_employee/<emp_id>", methods=["GET", "POST"])
