@@ -1,43 +1,80 @@
 {% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
 content %}
-<span class="is-breadcrumb" aria-label="breadcrumbs">
-  <a href="{{ url_for('add_employee') }}" class="button is-primary mb-4"
-    >Add New Employee</a
+<style>
+  .custom-table {
+    border: 1px solid #d3d3d3; /* Light grey border */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden; /* Keeps radius applied */
+    text-align: center; /* Align text centrally */
+  }
+
+  .custom-table th,
+  .custom-table td {
+    text-align: center; /* Ensures all text inside table is centered */
+    vertical-align: middle;
+    padding: 10px;
+  }
+  .custom-table thead {
+    background-color: whitesmoke !important;
+  }
+
+  .custom-table thead tr {
+    background-color: rgba(158, 156, 156, 0.934) !important;
+  }
+
+  .custom-table tbody tr:nth-child(even) {
+    background-color: rgba(237, 231, 231, 0.943); /* subtle zebra striping */
+  }
+
+  .table-container {
+    margin-top: 2.5%;
+  }
+</style>
+
+<div style="display: flex; flex-direction: column">
+  <div
+    style="display: flex; flex-direction: row; justify-content: space-between"
   >
-</span>
-<div class="table-container" style="margin-top: 2.5%">
-  <table class="table is-fullwidth">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Employee ID</th>
-        <th>Department</th>
-        <th>Salary</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for emp in employees %}
-      <tr>
-        <td>{{ emp['name'] }}</td>
-        <td>{{ emp['emp_id'] }}</td>
-        <td>{{ emp['department'] }}</td>
-        <td>{{ emp['salary'] }}</td>
-        <td>
-          <a
-            href="{{ url_for('edit_employee', emp_id=emp['emp_id']) }}"
-            class="button is-small is-info"
-          >
-            Edit
-          </a>
-        </td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="5" class="has-text-centered">No employees found.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <a href="{{ url_for('add_employee') }}" class="button is-primary mb-4">
+      Add New Employee
+    </a>
+    <a href="{{ url_for('add_employee') }}" class="button is-primary mb-4">
+      Search
+    </a>
+  </div>
+  <div class="table-container">
+    <table class="table is-fullwidth custom-table">
+      <thead style="background-color: whitesmoke">
+        <tr style="background-color: silver">
+          <th>Employee ID</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees %}
+        <tr>
+          <td>{{ emp['emp_id'] }}</td>
+          <td>{{ emp['name'] }}</td>
+          <td>{{ emp['department'] }}</td>
+          <td>
+            <a
+              href="{{ url_for('edit_employee', emp_id=emp['emp_id']) }}"
+              class="button is-small is-info"
+            >
+              Edit
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="has-text-centered">No employees found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
