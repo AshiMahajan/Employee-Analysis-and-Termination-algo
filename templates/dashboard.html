@@ -31,7 +31,6 @@ content %}
     margin-top: 2.5%;
   }
 </style>
-
 <div style="display: flex; flex-direction: column">
   <div
     style="display: flex; flex-direction: row; justify-content: space-between"
@@ -40,21 +39,68 @@ content %}
       Search
     </a>
   </div>
+  <div
+    style="
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-start;
+    "
+  >
+    <a
+      href="{{ url_for('dashboard', filter='manager') }}"
+      class="button is-link is-small"
+      >Manager</a
+    >
+    <a
+      href="{{ url_for('dashboard', filter='associate') }}"
+      class="button is-link is-small"
+      >Associate</a
+    >
+  </div>
+  {% if filter == 'manager' %} {% for mgr in managers %}
   <div class="table-container">
     <table class="table is-fullwidth custom-table">
       <thead style="background-color: whitesmoke">
         <tr style="background-color: silver">
-          <th>Employee ID</th>
-          <th>Name</th>
+          <th>Manager ID</th>
+          <th>Manager Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ mgr['manager_id'] }}</td>
+          <td>{{ mgr['manager_name'] }}</td>
+          <td>
+            <a
+              href="{{ url_for('edit_employee', emp_id=mgr['emp_id']) }}"
+              class="button is-small is-info"
+            >
+              Edit
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="has-text-centered">No managers found.</td>
+        </tr>
+        {% endfor %} {% elif filter == 'associate' %} {% for emp in associates
+        %}
+        <div class="table-container">
+    <table class="table is-fullwidth custom-table">
+      <thead style="background-color: whitesmoke">
+        <tr style="background-color: silver">
+          <th>Associate ID</th>
+          <th>Associate Name</th>
           <th>Department</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        {% for emp in employees %}
         <tr>
-          <td>{{ emp['emp_id'] }}</td>
-          <td>{{ emp['name'] }}</td>
+          <td>{{ emp['associate_id'] }}</td>
+          <td>{{ emp['associate_name'] }}</td>
           <td>{{ emp['department'] }}</td>
           <td>
             <a
@@ -65,11 +111,7 @@ content %}
             </a>
           </td>
         </tr>
-        {% else %}
-        <tr>
-          <td colspan="4" class="has-text-centered">No employees found.</td>
-        </tr>
-        {% endfor %}
+        {% endfor %} {% endif %}
       </tbody>
     </table>
   </div>
