@@ -124,36 +124,65 @@ def dashboard():
 
 
 # Enter employee data
-@app.route("/add_employee", methods=["GET", "POST"])
-def add_employee():
+@app.route("/manager", methods=["GET", "POST"])
+def add_manager():
     if "user" not in session:
         flash("Please login first.")
         return redirect(url_for("login"))
 
     if request.method == "POST":
         # Get employee details from form
-        name = request.form["name"]
-        emp_id = request.form["emp_id"]
-        dept = request.form["department"]
-        salary = request.form["salary"]
+        manager_name = request.form["manager_name"]
+        manager_id = request.form["manager_id"]
         # Add more fields as needed
 
         # Insert into MongoDB
         mongo.db.employees.insert_one(
             {
-                "name": name,
-                "emp_id": emp_id,
-                "department": dept,
-                "salary": salary,
+                "manager_name": manager_name,
+                "manager_id": manager_id,
                 # Add more fields here
             }
         )
 
-        flash("Employee added successfully!")
+        flash("Manager added successfully!")
         return redirect(url_for("dashboard"))
 
     return render_template(
-        "add_employee.html",
+        "add_manager.html",
+        user=session["user"],
+        hr_id=session["hr_id"],
+    )
+
+
+@app.route("/associate", methods=["GET", "POST"])
+def add_associate():
+    if "user" not in session:
+        flash("Please login first.")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        # Get employee details from form
+        associate_name = request.form["associate_name"]
+        associate_id = request.form["associate_id"]
+        department = request.form["department"]
+        # Add more fields as needed
+
+        # Insert into MongoDB
+        mongo.db.employees.insert_one(
+            {
+                "associate_name": associate_name,
+                "associate_id": associate_id,
+                "department": department,
+                # Add more fields here
+            }
+        )
+
+        flash("Associate added successfully!")
+        return redirect(url_for("dashboard"))
+
+    return render_template(
+        "add_associate.html",
         user=session["user"],
         hr_id=session["hr_id"],
     )
