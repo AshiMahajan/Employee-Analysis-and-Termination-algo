@@ -113,13 +113,18 @@ def dashboard():
         return redirect(url_for("login"))
 
     # Fetch all employees from MongoDB
-    employees = list(mongo.db.employees.find({}, {"_id": 0}))  # exclude _id
+    filter_type = request.args.get("filter", None)
+
+    managers = list(mongo.db.managers.find({}, {"_id": 0}))
+    associates = list(mongo.db.associates.find({}, {"_id": 0}))
 
     return render_template(
         "dashboard.html",
         user=session["user"],
         hr_id=session["hr_id"],
-        employees=employees,
+        filter=filter_type,
+        managers=managers,
+        associates=associates,
     )
 
 
@@ -137,7 +142,7 @@ def add_manager():
         # Add more fields as needed
 
         # Insert into MongoDB
-        mongo.db.employees.insert_one(
+        mongo.db.managers.insert_one(
             {
                 "manager_name": manager_name,
                 "manager_id": manager_id,
@@ -169,7 +174,7 @@ def add_associate():
         # Add more fields as needed
 
         # Insert into MongoDB
-        mongo.db.employees.insert_one(
+        mongo.db.associates.insert_one(
             {
                 "associate_name": associate_name,
                 "associate_id": associate_id,
@@ -195,7 +200,7 @@ def edit_employee(emp_id):
         return redirect(url_for("login"))
 
     # Fetch employee details
-    emp = mongo.db.employees.find_one({"emp_id": emp_id}, {"_id": 0})
+    emp = mongo.db.associates.find_one({"emp_id": emp_id}, {"_id": 0})
     if not emp:
         flash("Employee not found.")
         return redirect(url_for("dashboard"))
@@ -206,7 +211,7 @@ def edit_employee(emp_id):
         department = request.form.get("department")
         salary = request.form.get("salary")
 
-        mongo.db.employees.update_one(
+        mongo.db.associates.update_one(
             {"emp_id": emp_id},
             {"$set": {"name": name, "department": department, "salary": salary}},
         )
