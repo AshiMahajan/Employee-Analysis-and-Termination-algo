@@ -1,119 +1,231 @@
 {% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
 content %}
+
 <style>
+  .dashboard-header {
+    display: flex;
+    justify-content: center; /* Center buttons */
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-header .button {
+    min-width: 160px;
+    justify-content: center;
+    font-weight: 500;
+    border-radius: 8px;
+  }
+
   .custom-table {
-    border: 1px solid #d3d3d3; /* Light grey border */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
-    border-radius: 8px; /* Rounded corners */
-    overflow: hidden; /* Keeps radius applied */
-    text-align: center; /* Align text centrally */
+    border: 1px solid #d3d3d3;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    background: white;
   }
 
   .custom-table th,
   .custom-table td {
-    text-align: center; /* Ensures all text inside table is centered */
+    text-align: center;
     vertical-align: middle;
-    padding: 10px;
-  }
-  .custom-table thead {
-    background-color: whitesmoke !important;
+    padding: 12px;
+    font-size: 15px;
   }
 
-  .custom-table thead tr {
-    background-color: rgba(158, 156, 156, 0.934) !important;
+  .custom-table thead {
+    background: linear-gradient(90deg, #4a90e2, #5ac8fa);
+    color: white;
   }
 
   .custom-table tbody tr:nth-child(even) {
-    background-color: rgba(237, 231, 231, 0.943); /* subtle zebra striping */
+    background-color: #f9f9f9;
   }
 
-  .table-container {
-    margin-top: 2.5%;
+  .filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .empty-message {
+    text-align: center;
+    font-style: italic;
+    color: gray;
+    padding: 20px;
+  }
+
+  .circle-menu-container {
+    position: relative;
+    width: 300px;
+    height: 220px;
+    margin: 5rem auto;
+  }
+
+  .circle-center {
+    position: absolute;
+    top: 70%;
+    left: 70%;
+    transform: translate(-50%, -50%);
+  }
+
+  .circle-button {
+    position: absolute;
+    transform: translate(-50%, -50%);
+  }
+
+  .circle-button.top-left {
+    top: 20%;
+    left: 20%;
+  }
+
+  .circle-button.top-right {
+    top: 20%;
+    left: 80%;
+  }
+
+  .circle-button.bottom-left {
+    top: 80%;
+    left: 20%;
+  }
+
+  .circle-button.bottom-right {
+    top: 80%;
+    left: 80%;
   }
 </style>
-<div style="display: flex; flex-direction: column">
-  <div
-    style="display: flex; flex-direction: row; justify-content: space-between"
+
+<!-- Manager/Associate Filter -->
+<div class="filter-buttons">
+  <a
+    href="{{ url_for('dashboard', filter='manager') }}"
+    class="button is-link is-small"
   >
-    <a href="{{ url_for('add_manager') }}" class="button is-primary mb-4">
-      Search
-    </a>
-  </div>
-  <div
-    style="
-      margin-bottom: 15px;
-      display: flex;
-      gap: 10px;
-      justify-content: flex-start;
-    "
+    👔 Managers
+  </a>
+  <a
+    href="{{ url_for('dashboard', filter='associate') }}"
+    class="button is-link is-small"
   >
-    <a
-      href="{{ url_for('dashboard', filter='manager') }}"
-      class="button is-link is-small"
-      >Manager</a
-    >
-    <a
-      href="{{ url_for('dashboard', filter='associate') }}"
-      class="button is-link is-small"
-      >Associate</a
-    >
+    👨‍💻 Associates
+  </a>
+</div>
+
+{% if not filter %}
+<!-- Centered Insight Buttons -->
+<div
+  class="circle-menu-container"
+  style="display: flex; flex-direction: column"
+>
+  <div class="circle-center">
+    <span>
+              <img
+                src="{{ url_for('static', filename='images/icons8-user-50.png') }}"
+                alt="User Icon"
+                width="47"
+                height="47"
+              />
   </div>
-  {% if filter == 'manager' %} {% for mgr in managers %}
-  <div class="table-container">
-    <table class="table is-fullwidth custom-table">
-      <thead style="background-color: whitesmoke">
-        <tr style="background-color: silver">
-          <th>Manager ID</th>
-          <th>Manager Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ mgr['manager_id'] }}</td>
-          <td>{{ mgr['manager_name'] }}</td>
-          <td>
-            <a
-              href="{{ url_for('edit_employee', emp_id=mgr['emp_id']) }}"
-              class="button is-small is-info"
-            >
-              Edit
-            </a>
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="4" class="has-text-centered">No managers found.</td>
-        </tr>
-        {% endfor %} {% elif filter == 'associate' %} {% for emp in associates
-        %}
-        <div class="table-container">
-    <table class="table is-fullwidth custom-table">
-      <thead style="background-color: whitesmoke">
-        <tr style="background-color: silver">
-          <th>Associate ID</th>
-          <th>Associate Name</th>
-          <th>Department</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ emp['associate_id'] }}</td>
-          <td>{{ emp['associate_name'] }}</td>
-          <td>{{ emp['department'] }}</td>
-          <td>
-            <a
-              href="{{ url_for('edit_employee', emp_id=emp['emp_id']) }}"
-              class="button is-small is-info"
-            >
-              Edit
-            </a>
-          </td>
-        </tr>
-        {% endfor %} {% endif %}
-      </tbody>
-    </table>
+
+  <!-- Top Left -->
+  <div
+    class="circle-button top-left"
+    style="rotate: 45deg; margin-top: 3rem; left: 24%"
+  >
+    <a href="#" class="button is-info">📊 Visualizations</a>
+  </div>
+
+  <!-- Top Right -->
+  <div
+    class="circle-button top-right"
+    style="rotate: 135deg; margin-top: -1rem; transform: scale(-1)"
+  >
+    <a href="#" class="button is-success">🔍 Employee Insights</a>
+  </div>
+
+  <!-- Bottom Left -->
+  <div
+    class="circle-button bottom-left"
+    style="rotate: 315deg; margin-top: 3rem; top: 70%; left: 27%"
+  >
+    <a href="#" class="button is-warning">📈 Attrition Predictor</a>
+  </div>
+
+  <!-- Bottom Right -->
+  <div
+    class="circle-button bottom-right"
+    style="rotate: 225deg; transform: scale(-1); margin-top: 4rem"
+  >
+    <a href="#" class="button is-primary">💰 Salary Analysis</a>
   </div>
 </div>
-{% endblock %}
+{% endif %}
+{% if filter == 'manager' %}
+<div class="table-container">
+  <table class="table is-fullwidth custom-table">
+    <thead>
+      <tr>
+        <th>Manager ID</th>
+        <th>Manager Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mgr in managers %}
+      <tr>
+        <td>{{ mgr['manager_id'] }}</td>
+        <td>{{ mgr['manager_name'] }}</td>
+        <td>
+          <a
+            href="{{ url_for('edit_employee', emp_id=mgr['manager_id']) }}"
+            class="button is-small is-info"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="3" class="empty-message">No managers found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif filter == 'associate' %}
+<div class="table-container">
+  <table class="table is-fullwidth custom-table">
+    <thead>
+      <tr>
+        <th>Associate ID</th>
+        <th>Associate Name</th>
+        <th>Department</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for emp in associates %}
+      <tr>
+        <td>{{ emp['associate_id'] }}</td>
+        <td>{{ emp['associate_name'] }}</td>
+        <td>{{ emp['department'] }}</td>
+        <td>
+          <a
+            href="{{ url_for('edit_employee', emp_id=emp['associate_id']) }}"
+            class="button is-small is-info"
+          >
+            Edit
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" class="empty-message">No associates found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %} {% endblock %}
