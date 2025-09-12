@@ -166,30 +166,33 @@ def add_associate():
         flash("Please login first.")
         return redirect(url_for("login"))
 
+    # Step 1: Initialize session storage for associate if not set
+    if "new_associate" not in session:
+        session["new_associate"] = {}
+
     if request.method == "POST":
-        # Get employee details from form
-        associate_name = request.form["associate_name"]
-        associate_id = request.form["associate_id"]
-        department = request.form["department"]
-        # Add more fields as needed
+        action = request.form.get("action")
 
-        # Insert into MongoDB
-        mongo.db.associates.insert_one(
-            {
-                "associate_name": associate_name,
-                "associate_id": associate_id,
-                "department": department,
-                # Add more fields here
-            }
-        )
+        if action == "save_section":
+            # Merge section data into session
+            for key, value in request.form.items():
+                if key not in ["action"]:  # skip control field
+                    session["new_associate"][key] = value
+            session.modified = True
+            flash("Section saved! (Not yet added to DB)")
 
-        flash("Associate added successfully!")
-        return redirect(url_for("dashboard"))
+        elif action == "proceed":
+            # Finalize and save to MongoDB
+            mongo.db.associates.insert_one(session["new_associate"])
+            flash("Associate added successfully!")
+            session.pop("new_associate", None)  # clear after saving
+            return redirect(url_for("dashboard"))
 
     return render_template(
         "add_associate.html",
         user=session["user"],
         hr_id=session["hr_id"],
+        form_data=session.get("new_associate", {}),
     )
 
 
