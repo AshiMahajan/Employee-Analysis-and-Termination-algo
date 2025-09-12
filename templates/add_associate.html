@@ -1,30 +1,200 @@
-{% extends "base.html" %} {% block title %}Add Associate{% endblock %} {% block
-content %}
-<h1 class="title">Add Associate</h1>
+{% extends "base.html" %}
+{% block title %}Add Associate{% endblock %}
+{% block content %}
+
+<h1 class="title has-text-centered">Add Associate</h1>
+
+<!-- Tab Navigation -->
+<div class="tabs is-centered is-boxed">
+  <ul>
+    <li class="is-active" data-tab="basic"><a>🧑 Basic Info</a></li>
+    <li data-tab="job"><a>💼 Job Details</a></li>
+    <li data-tab="performance"><a>📊 Performance & Salary</a></li>
+    <li data-tab="other"><a>📋 Other Details</a></li>
+  </ul>
+</div>
+
 <form method="POST">
-  <div class="field">
-    <label class="label">Associate Name</label>
-    <div class="control">
-      <input class="input" type="text" name="associate_name" required />
+  <!-- BASIC INFO -->
+  <div class="tab-content" id="basic" style="display: block;">
+    <div class="field">
+      <label class="label">Associate ID</label>
+      <input class="input" type="text" name="associate_id" value="{{ form_data.get('associate_id','') }}">
     </div>
+
+    <div class="field">
+      <label class="label">Name</label>
+      <input class="input" type="text" name="associate_name" value="{{ form_data.get('associate_name','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Gender</label>
+      <div class="select">
+        <select name="gender">
+          <option value="M" {% if form_data.get('gender') == "M" %}selected{% endif %}>Male</option>
+          <option value="F" {% if form_data.get('gender') == "F" %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Marital Status</label>
+      <input class="input" type="text" name="marital_status" value="{{ form_data.get('marital_status','') }}">
+    </div>
+
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
+      Save Section
+    </button>
   </div>
 
-  <div class="field">
-    <label class="label">Associate ID</label>
-    <div class="control">
-      <input class="input" type="text" name="associate_id" required />
+  <!-- JOB DETAILS -->
+  <div class="tab-content" id="job" style="display: none;">
+    <div class="field">
+      <label class="label">Department</label>
+      <input class="input" type="text" name="department" value="{{ form_data.get('department','') }}">
     </div>
+
+    <div class="field">
+      <label class="label">Department ID</label>
+      <input class="input" type="text" name="department_id" value="{{ form_data.get('department_id','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Employment Status</label>
+      <input class="input" type="text" name="employment_status" value="{{ form_data.get('employment_status','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Manager Name & ID</label>
+      <input class="input" type="text" name="manager" value="{{ form_data.get('manager','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Recruitment Through</label>
+      <input class="input" type="text" name="recruitment" value="{{ form_data.get('recruitment','') }}">
+    </div>
+
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
+      Save Section
+    </button>
   </div>
 
-  <div class="field">
-    <label class="label">Department </label>
-    <div class="control">
-      <input class="input" type="text" name="department" required />
+  <!-- PERFORMANCE & SALARY -->
+  <div class="tab-content" id="performance" style="display: none;">
+    <div class="field">
+      <label class="label">Performance Score</label>
+      <input class="input" type="text" name="performance_score" value="{{ form_data.get('performance_score','') }}">
     </div>
+
+    <div class="field">
+      <label class="label">Engagement Score</label>
+      <input class="input" type="text" name="engagement_score" value="{{ form_data.get('engagement_score','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Employee Satisfaction</label>
+      <input class="input" type="text" name="employee_satisfaction" value="{{ form_data.get('employee_satisfaction','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Salary</label>
+      <input class="input" type="number" name="salary" value="{{ form_data.get('salary','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Special Project</label>
+      <input class="input" type="text" name="special_project" value="{{ form_data.get('special_project','') }}">
+    </div>
+
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
+      Save Section
+    </button>
   </div>
 
-  <div class="control mt-4">
-    <button class="button is-primary" type="submit">Add Associate</button>
+  <!-- OTHER DETAILS -->
+  <div class="tab-content" id="other" style="display: none;">
+    <div class="field">
+      <label class="label">Country</label>
+      <input class="input" type="text" name="country" value="{{ form_data.get('country','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">State</label>
+      <input class="input" type="text" name="state" value="{{ form_data.get('state','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">ZIP</label>
+      <input class="input" type="text" name="zip" value="{{ form_data.get('zip','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">DOB</label>
+      <input class="input" type="date" name="dob" value="{{ form_data.get('dob','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Date of Hire</label>
+      <input class="input" type="date" name="dateofhire" value="{{ form_data.get('dateofhire','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Terminated (0/1)</label>
+      <input class="input" type="text" name="term" value="{{ form_data.get('term','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Termination Reason</label>
+      <input class="input" type="text" name="termination_reason" value="{{ form_data.get('termination_reason','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Race</label>
+      <input class="input" type="text" name="race" value="{{ form_data.get('race','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Last Performance Review Date</label>
+      <input class="input" type="date" name="LastPerformanceReview_Date" value="{{ form_data.get('LastPerformanceReview_Date','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Days Late</label>
+      <input class="input" type="number" name="days_late" value="{{ form_data.get('days_late','') }}">
+    </div>
+
+    <div class="field">
+      <label class="label">Absences</label>
+      <input class="input" type="number" name="absences" value="{{ form_data.get('absences','') }}">
+    </div>
+
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
+      Save Section
+    </button>
+  </div>
+
+  <!-- FINAL PROCEED -->
+  <div class="field mt-5 has-text-centered">
+    <button class="button is-primary is-large" type="submit" name="action" value="proceed">
+      Proceed → Save to Database
+    </button>
   </div>
 </form>
+
+<!-- Tab Switching Script -->
+<script>
+  const tabs = document.querySelectorAll(".tabs li");
+  const contents = document.querySelectorAll(".tab-content");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("is-active"));
+      tab.classList.add("is-active");
+
+      contents.forEach(c => c.style.display = "none");
+      document.getElementById(tab.dataset.tab).style.display = "block";
+    });
+  });
+</script>
+
 {% endblock %}
