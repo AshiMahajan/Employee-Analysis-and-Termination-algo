@@ -19,7 +19,7 @@
   <div class="tab-content" id="basic" style="display: block;">
     <div class="field">
       <label class="label">Associate ID</label>
-      <input class="input" type="text" name="associate_id" value="{{ form_data.get('associate_id','') }}">
+      <input class="input" type="number" name="associate_id" value="{{ form_data.get('associate_id','') }}">
     </div>
 
     <div class="field">
@@ -29,34 +29,54 @@
 
     <div class="field">
       <label class="label">Gender</label>
-      <div class="select">
-        <select name="gender">
-          <option value="M" {% if form_data.get('gender') == "M" %}selected{% endif %}>Male</option>
-          <option value="F" {% if form_data.get('gender') == "F" %}selected{% endif %}>Female</option>
-        </select>
+      <div class="control is-flex">
+        <div class="select is-fullwidth">
+          <select name="gender" id="gender">
+            <option value="M" {% if form_data.get('gender') == "M" %}selected{% endif %}>Male</option>
+            <option value="F" {% if form_data.get('gender') == "F" %}selected{% endif %}>Female</option>
+            <option value="O" {% if form_data.get('gender') == "O" %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('gender')">+</button>
       </div>
     </div>
 
     <div class="field">
       <label class="label">Marital Status</label>
-      <input class="input" type="text" name="marital_status" value="{{ form_data.get('marital_status','') }}">
+      <div class="control is-flex">
+        <div class="select is-fullwidth">
+          <select name="marital_status" id="marital_status">
+            <option>Single</option>
+            <option>Married</option>
+            <option>Divorced</option>
+          </select>
+        </div>
+        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('marital_status')">+</button>
+      </div>
     </div>
 
-    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
-      Save Section
-    </button>
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">Save Section</button>
   </div>
 
   <!-- JOB DETAILS -->
   <div class="tab-content" id="job" style="display: none;">
     <div class="field">
       <label class="label">Department</label>
-      <input class="input" type="text" name="department" value="{{ form_data.get('department','') }}">
+      <div class="control is-flex">
+        <div class="select is-fullwidth">
+          <select name="department" id="department" onchange="autoFillDepartmentId()">
+            <option>HR</option>
+            <option>IT</option>
+            <option>Finance</option>
+          </select>
+        </div>
+        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('department')">+</button>
+      </div>
     </div>
 
     <div class="field">
       <label class="label">Department ID</label>
-      <input class="input" type="text" name="department_id" value="{{ form_data.get('department_id','') }}">
+      <input class="input" type="number" name="department_id" id="department_id" readonly>
     </div>
 
     <div class="field">
@@ -65,112 +85,129 @@
     </div>
 
     <div class="field">
-      <label class="label">Manager Name & ID</label>
-      <input class="input" type="text" name="manager" value="{{ form_data.get('manager','') }}">
+      <label class="label">Terminated (0/1)</label>
+      <div class="select is-fullwidth">
+        <select name="terminated" id="terminated" onchange="toggleTerminationReason()">
+          <option value="0">0 - No</option>
+          <option value="1">1 - Yes</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Termination Reason</label>
+      <div class="control is-flex">
+        <div class="select is-fullwidth">
+          <select name="termination_reason" id="termination_reason" disabled>
+            <option>N/A</option>
+            <option>Performance</option>
+            <option>Resigned</option>
+            <option>Layoff</option>
+          </select>
+        </div>
+        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('termination_reason')">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Manager Name</label>
+      <div class="control is-flex">
+        <div class="select is-fullwidth">
+          <select name="manager_name" id="manager_name" onchange="autoFillManagerId()">
+            <option value="">-- Select Manager --</option>
+            {% for m in managers %}
+              <option value="{{ m.manager_name }}"
+                data-id="{{ m.manager_id }}"
+                {% if form_data.get('manager_name') == m.manager_name %}selected{% endif %}>
+                {{ m.manager_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('manager_name')">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Manager ID</label>
+      <input class="input" type="number" name="manager_id" id="manager_id" readonly
+             value="{{ form_data.get('manager_id','') }}">
     </div>
 
     <div class="field">
       <label class="label">Recruitment Through</label>
-      <input class="input" type="text" name="recruitment" value="{{ form_data.get('recruitment','') }}">
+      <div class="control is-flex">
+        <div class="select is-fullwidth">
+          <select name="recruitment" id="recruitment">
+            <option>Agency</option>
+            <option>Referral</option>
+            <option>Direct</option>
+          </select>
+        </div>
+        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('recruitment')">+</button>
+      </div>
     </div>
 
-    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
-      Save Section
-    </button>
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">Save Section</button>
   </div>
 
   <!-- PERFORMANCE & SALARY -->
   <div class="tab-content" id="performance" style="display: none;">
-    <div class="field">
-      <label class="label">Performance Score</label>
-      <input class="input" type="text" name="performance_score" value="{{ form_data.get('performance_score','') }}">
+    <div class="field"><label class="label">Performance Score</label>
+      <input class="input" type="number" name="performance_score" min="0" max="10"
+             value="{{ form_data.get('performance_score','') }}">
+    </div>
+    <div class="field"><label class="label">Engagement Score</label>
+      <input class="input" type="number" name="engagement_score" min="0" max="10"
+             value="{{ form_data.get('engagement_score','') }}">
+    </div>
+    <div class="field"><label class="label">Employee Satisfaction</label>
+      <input class="input" type="number" name="employee_satisfaction" min="0" max="10"
+             value="{{ form_data.get('employee_satisfaction','') }}">
+    </div>
+    <div class="field"><label class="label">Salary</label>
+      <input class="input" type="number" name="salary"
+             value="{{ form_data.get('salary','') }}">
+    </div>
+    <div class="field"><label class="label">Special Project</label>
+      <input class="input" type="number" name="special_project"
+             value="{{ form_data.get('special_project','') }}">
     </div>
 
-    <div class="field">
-      <label class="label">Engagement Score</label>
-      <input class="input" type="text" name="engagement_score" value="{{ form_data.get('engagement_score','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Employee Satisfaction</label>
-      <input class="input" type="text" name="employee_satisfaction" value="{{ form_data.get('employee_satisfaction','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Salary</label>
-      <input class="input" type="number" name="salary" value="{{ form_data.get('salary','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Special Project</label>
-      <input class="input" type="text" name="special_project" value="{{ form_data.get('special_project','') }}">
-    </div>
-
-    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
-      Save Section
-    </button>
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">Save Section</button>
   </div>
 
   <!-- OTHER DETAILS -->
   <div class="tab-content" id="other" style="display: none;">
     <div class="field">
       <label class="label">Country</label>
-      <input class="input" type="text" name="country" value="{{ form_data.get('country','') }}">
+      <div class="control is-flex">
+        <div class="select is-fullwidth">
+          <select name="country" id="country" onchange="loadStates()">
+            <option>India</option>
+            <option>USA</option>
+          </select>
+        </div>
+        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('country')">+</button>
+      </div>
     </div>
 
     <div class="field">
       <label class="label">State</label>
-      <input class="input" type="text" name="state" value="{{ form_data.get('state','') }}">
+      <div class="select is-fullwidth">
+        <select name="state" id="state"><option>--Select Country First--</option></select>
+      </div>
     </div>
 
-    <div class="field">
-      <label class="label">ZIP</label>
-      <input class="input" type="text" name="zip" value="{{ form_data.get('zip','') }}">
-    </div>
+    <div class="field"><label class="label">ZIP</label><input class="input" type="text" name="zip"></div>
+    <div class="field"><label class="label">DOB</label><input class="input" type="date" name="dob"></div>
+    <div class="field"><label class="label">Date of Hire</label><input class="input" type="date" name="dateofhire"></div>
+    <div class="field"><label class="label">Race</label><input class="input" type="text" name="race"></div>
+    <div class="field"><label class="label">Last Performance Review Date</label><input class="input" type="date" name="last_review"></div>
+    <div class="field"><label class="label">Days Late</label><input class="input" type="number" name="days_late"></div>
+    <div class="field"><label class="label">Absences</label><input class="input" type="number" name="absences"></div>
 
-    <div class="field">
-      <label class="label">DOB</label>
-      <input class="input" type="date" name="dob" value="{{ form_data.get('dob','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Date of Hire</label>
-      <input class="input" type="date" name="dateofhire" value="{{ form_data.get('dateofhire','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Terminated (0/1)</label>
-      <input class="input" type="text" name="term" value="{{ form_data.get('term','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Termination Reason</label>
-      <input class="input" type="text" name="termination_reason" value="{{ form_data.get('termination_reason','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Race</label>
-      <input class="input" type="text" name="race" value="{{ form_data.get('race','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Last Performance Review Date</label>
-      <input class="input" type="date" name="LastPerformanceReview_Date" value="{{ form_data.get('LastPerformanceReview_Date','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Days Late</label>
-      <input class="input" type="number" name="days_late" value="{{ form_data.get('days_late','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Absences</label>
-      <input class="input" type="number" name="absences" value="{{ form_data.get('absences','') }}">
-    </div>
-
-    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
-      Save Section
-    </button>
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">Save Section</button>
   </div>
 
   <!-- FINAL PROCEED -->
@@ -181,7 +218,7 @@
   </div>
 </form>
 
-<!-- Tab Switching Script -->
+<!-- Tab Switching + Dynamic Logic -->
 <script>
   const tabs = document.querySelectorAll(".tabs li");
   const contents = document.querySelectorAll(".tab-content");
@@ -190,11 +227,57 @@
     tab.addEventListener("click", () => {
       tabs.forEach(t => t.classList.remove("is-active"));
       tab.classList.add("is-active");
-
       contents.forEach(c => c.style.display = "none");
       document.getElementById(tab.dataset.tab).style.display = "block";
     });
   });
+
+  function addNewOption(selectId) {
+    let newValue = prompt("Enter new value:");
+    if (newValue) {
+      let select = document.getElementById(selectId);
+      let opt = document.createElement("option");
+      opt.text = newValue; opt.value = newValue;
+      select.add(opt);
+      select.value = newValue;
+    }
+  }
+
+  function toggleTerminationReason() {
+    let term = document.getElementById("terminated").value;
+    let reason = document.getElementById("termination_reason");
+    reason.disabled = (term === "0");
+    if (term === "0") reason.value = "N/A";
+  }
+
+  const deptIds = { "HR": 101, "IT": 102, "Finance": 103 };
+  function autoFillDepartmentId() {
+    let dept = document.getElementById("department").value;
+    document.getElementById("department_id").value = deptIds[dept] || "";
+  }
+
+  const mgrIds = { "John Smith": 201, "Jane Doe": 202 };
+  function autoFillManagerId() {
+    let mgr = document.getElementById("manager_name").value;
+    document.getElementById("manager_id").value = mgrIds[mgr] || "";
+  }
+
+  const statesByCountry = {
+    "India": ["Delhi", "Maharashtra", "Karnataka"],
+    "USA": ["California", "Texas", "New York"]
+  };
+  function loadStates() {
+    let ctry = document.getElementById("country").value;
+    let stateSel = document.getElementById("state");
+    stateSel.innerHTML = "";
+    if (statesByCountry[ctry]) {
+      statesByCountry[ctry].forEach(s => {
+        let opt = document.createElement("option");
+        opt.value = s; opt.text = s;
+        stateSel.add(opt);
+      });
+    }
+  }
 </script>
 
 {% endblock %}
