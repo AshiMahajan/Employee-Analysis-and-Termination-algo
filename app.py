@@ -23,6 +23,13 @@ app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
 mail = Mail(app)
 
+mongo.db.dropdown_values.insert_many(
+    [
+        {"field": "department", "options": ["IT", "HR"]},
+        {"field": "role", "options": ["Manager", "Developer"]},
+    ]
+)
+
 
 # Function to generate HR ID
 def generate_hr_id():
@@ -34,6 +41,29 @@ def generate_hr_id():
 @app.route("/")
 def index():
     return render_template("home.html")
+
+
+# --------- Load dropdown values ---------
+def get_dropdown(field):
+    record = mongo.db.dropdown_values.find_one({"field": field})
+    return record["options"] if record else []
+
+
+# --------- Add new option to dropdown ---------
+@app.route("/add_option", methods=["POST"])
+def add_option():
+    field = request.form.get("field")
+    new_value = request.form.get("value")
+
+    if field and new_value:
+        mongo.db.dropdown_values.update_one(
+            {"field": field},
+            {"$addToSet": {"options": new_value}},  # add only if not exists
+            upsert=True,
+        )
+        flash(f"New {field} option '{new_value}' added!")
+
+    return redirect(url_for("add_associate"))
 
 
 # Function to send email
@@ -166,7 +196,6 @@ def add_associate():
         flash("Please login first.")
         return redirect(url_for("login"))
 
-    # Step 1: Initialize session storage for associate if not set
     if "new_associate" not in session:
         session["new_associate"] = {}
 
@@ -174,25 +203,45 @@ def add_associate():
         action = request.form.get("action")
 
         if action == "save_section":
-            # Merge section data into session
-            for key, value in request.form.items():
-                if key not in ["action"]:  # skip control field
-                    session["new_associate"][key] = value
+            section_data = {
+                k: v
+                for k, v in request.form.items()
+                if k not in ["action", "csrf_token"]
+            }
+            session["new_associate"].update(section_data)
             session.modified = True
-            flash("Section saved! (Not yet added to DB)")
+            flash("Section saved! (Not yet stored in DB)")
 
         elif action == "proceed":
-            # Finalize and save to MongoDB
-            mongo.db.associates.insert_one(session["new_associate"])
+            associate_data = session.get("new_associate", {})
+            mongo.db.associates.insert_one(associate_data)
             flash("Associate added successfully!")
-            session.pop("new_associate", None)  # clear after saving
+            session.pop("new_associate", None)
             return redirect(url_for("dashboard"))
+
+    # Load dropdowns dynamically from DB
+    genders = get_dropdown("gender")
+    marital_statuses = get_dropdown("marital_status")
+    departments = get_dropdown("department")
+    term_reasons = get_dropdown("termination_reason")
+    managers = list(
+        mongo.db.managers.find({}, {"_id": 0, "manager_name": 1, "manager_id": 1})
+    )
+    recruitments = get_dropdown("recruitment")
+    countries = get_dropdown("country")
 
     return render_template(
         "add_associate.html",
         user=session["user"],
         hr_id=session["hr_id"],
         form_data=session.get("new_associate", {}),
+        genders=genders,
+        marital_statuses=marital_statuses,
+        departments=departments,
+        term_reasons=term_reasons,
+        managers=managers,
+        recruitments=recruitments,
+        countries=countries,
     )
 
 
