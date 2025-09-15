@@ -23,12 +23,55 @@ app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
 mail = Mail(app)
 
-mongo.db.dropdown_values.insert_many(
-    [
-        {"field": "department", "options": ["IT", "HR"]},
-        {"field": "role", "options": ["Manager", "Developer"]},
-    ]
-)
+# Initialize default dropdown values (run once at app start)
+default_values = {
+    "department": ["IT", "HR"],
+    "gender": ["Male", "Female", "Other"],
+    "marital_status": ["Single", "Married"],
+    "termination_reason": ["Resigned", "Fired", "Retired"],
+    "recruitment": ["Referral", "Job Portal", "Campus"],
+    "country": ["India", "USA"],
+    "state": ["Delhi", "Maharashtra", "California", "Texas"],
+}
+
+for field, options in default_values.items():
+    mongo.db.dropdown_values.update_one(
+        {"field": field},
+        {"$setOnInsert": {"options": options}},  # only set if not exists
+        upsert=True,
+    )
+
+
+# --------- Load dropdown values ---------
+def get_dropdown(field):
+    record = mongo.db.dropdown_values.find_one({"field": field})
+    return record["options"] if record else []
+
+
+#
+@app.route("/dropdowns", methods=["GET", "POST"])
+def manage_dropdowns():
+    if "user" not in session:
+        flash("Please login first.")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        field = request.form.get("field")
+        value = request.form.get("value")
+
+        if field and value:
+            mongo.db.dropdown_values.update_one(
+                {"field": field},
+                {"$addToSet": {"options": value}},  # prevents duplicates
+                upsert=True,
+            )
+            flash(f"Added '{value}' to {field}")
+
+    dropdowns = list(mongo.db.dropdown_values.find({}, {"_id": 0}))
+    return render_template("manage_dropdowns.html", dropdowns=dropdowns)
+
+
+#
 
 
 # Function to generate HR ID
@@ -43,17 +86,12 @@ def index():
     return render_template("home.html")
 
 
-# --------- Load dropdown values ---------
-def get_dropdown(field):
-    record = mongo.db.dropdown_values.find_one({"field": field})
-    return record["options"] if record else []
-
-
 # --------- Add new option to dropdown ---------
 @app.route("/add_option", methods=["POST"])
 def add_option():
-    field = request.form.get("field")
-    new_value = request.form.get("value")
+    data = request.get_json()
+    field = data.get("field")
+    new_value = data.get("value")
 
     if field and new_value:
         mongo.db.dropdown_values.update_one(
@@ -61,9 +99,8 @@ def add_option():
             {"$addToSet": {"options": new_value}},  # add only if not exists
             upsert=True,
         )
-        flash(f"New {field} option '{new_value}' added!")
-
-    return redirect(url_for("add_associate"))
+        return {"status": "success", "message": f"{new_value} added to {field}"}, 200
+    return {"status": "error", "message": "Invalid data"}, 400
 
 
 # Function to send email
@@ -242,6 +279,15 @@ def add_associate():
         managers=managers,
         recruitments=recruitments,
         countries=countries,
+        dropdowns={
+            "gender": genders,
+            "marital_status": marital_statuses,
+            "department": departments,
+            "termination_reason": term_reasons,
+            "managers": managers,
+            "recruitment": recruitments,
+            "country": countries,
+        },
     )
 
 
