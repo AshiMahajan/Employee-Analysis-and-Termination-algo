@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Manage Dropdowns</h1>
+
+    <form method="POST" class="box">
+      <div class="field">
+        <label class="label">Select Dropdown Field</label>
+        <div class="control">
+          <div class="select">
+            <select name="field" required>
+              <option value="gender">Gender</option>
+              <option value="marital_status">Marital Status</option>
+              <option value="department">Department</option>
+              <option value="terminated">Terminated (0/1)</option>
+              <option value="termination_reason">Termination Reason</option>
+              <option value="manager_name">Manager Name</option>
+              <option value="recruitment">Recruitment Through</option>
+              <option value="country">Country</option>
+              <option value="state">State</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">New Value</label>
+        <div class="control">
+          <input
+            class="input"
+            type="text"
+            name="value"
+            placeholder="Enter new value"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <button class="button is-primary" type="submit">Add</button>
+      </div>
+    </form>
+
+    <hr />
+
+    <h2 class="subtitle">Current Dropdown Values</h2>
+    <ul>
+      {% for d in dropdowns %}
+      <li><strong>{{ d.field }}</strong>: {{ d.options|join(", ") }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}
