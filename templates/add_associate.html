@@ -19,12 +19,14 @@
   <div class="tab-content" id="basic" style="display: block;">
     <div class="field">
       <label class="label">Associate ID</label>
-      <input class="input" type="number" name="associate_id" value="{{ form_data.get('associate_id','') }}">
+      <input class="input" type="number" name="associate_id"
+             value="{{ form_data.get('associate_id','') }}">
     </div>
 
     <div class="field">
       <label class="label">Name</label>
-      <input class="input" type="text" name="associate_name" value="{{ form_data.get('associate_name','') }}">
+      <input class="input" type="text" name="associate_name"
+             value="{{ form_data.get('associate_name','') }}">
     </div>
 
     <div class="field">
@@ -32,12 +34,13 @@
       <div class="control is-flex">
         <div class="select is-fullwidth">
           <select name="gender" id="gender">
-            <option value="M" {% if form_data.get('gender') == "M" %}selected{% endif %}>Male</option>
-            <option value="F" {% if form_data.get('gender') == "F" %}selected{% endif %}>Female</option>
-            <option value="O" {% if form_data.get('gender') == "O" %}selected{% endif %}>Other</option>
+            {% for g in dropdowns.get("gender", []) %}
+              <option value="{{ g }}" {% if form_data.get("gender") == g %}selected{% endif %}>{{ g }}</option>
+            {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('gender')">+</button>
+        <button type="button" class="button is-small is-info ml-2"
+                onclick="addNewOption('gender')">+</button>
       </div>
     </div>
 
@@ -46,16 +49,19 @@
       <div class="control is-flex">
         <div class="select is-fullwidth">
           <select name="marital_status" id="marital_status">
-            <option>Single</option>
-            <option>Married</option>
-            <option>Divorced</option>
+            {% for ms in dropdowns.get("marital_status", []) %}
+              <option value="{{ ms }}" {% if form_data.get("marital_status") == ms %}selected{% endif %}>{{ ms }}</option>
+            {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('marital_status')">+</button>
+        <button type="button" class="button is-small is-info ml-2"
+                onclick="addNewOption('marital_status')">+</button>
       </div>
     </div>
 
-    <button class="button is-info mt-3" type="submit" name="action" value="save_section">Save Section</button>
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
+      Save Section
+    </button>
   </div>
 
   <!-- JOB DETAILS -->
@@ -65,31 +71,40 @@
       <div class="control is-flex">
         <div class="select is-fullwidth">
           <select name="department" id="department" onchange="autoFillDepartmentId()">
-            <option>HR</option>
-            <option>IT</option>
-            <option>Finance</option>
+            <option value="">Select Department</option>
+            {% for dept in dropdowns.get("department", []) %}
+              <option value="{{ dept }}" {% if form_data.get("department") == dept %}selected{% endif %}>
+                {{ dept }}
+              </option>
+            {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('department')">+</button>
+        <button type="button" class="button is-small is-info ml-2"
+                onclick="addNewOption('department')">+</button>
       </div>
     </div>
 
     <div class="field">
       <label class="label">Department ID</label>
-      <input class="input" type="number" name="department_id" id="department_id" readonly>
+      <input class="input" type="number" name="department_id" id="department_id" readonly
+             value="{{ form_data.get('department_id','') }}">
     </div>
 
     <div class="field">
       <label class="label">Employment Status</label>
-      <input class="input" type="text" name="employment_status" value="{{ form_data.get('employment_status','') }}">
+      <input class="input" type="text" name="employment_status"
+             value="{{ form_data.get('employment_status','') }}">
     </div>
 
     <div class="field">
       <label class="label">Terminated (0/1)</label>
       <div class="select is-fullwidth">
         <select name="terminated" id="terminated" onchange="toggleTerminationReason()">
-          <option value="0">0 - No</option>
-          <option value="1">1 - Yes</option>
+          {% for t in dropdowns.get("terminated", ["0 - No","1 - Yes"]) %}
+            <option value="{{ t.split(' ')[0] }}" {% if form_data.get("terminated") == t.split(' ')[0] %}selected{% endif %}>
+              {{ t }}
+            </option>
+          {% endfor %}
         </select>
       </div>
     </div>
@@ -99,13 +114,15 @@
       <div class="control is-flex">
         <div class="select is-fullwidth">
           <select name="termination_reason" id="termination_reason" disabled>
-            <option>N/A</option>
-            <option>Performance</option>
-            <option>Resigned</option>
-            <option>Layoff</option>
+            {% for tr in dropdowns.get("termination_reason", ["N/A","Performance","Resigned","Layoff"]) %}
+              <option value="{{ tr }}" {% if form_data.get("termination_reason") == tr %}selected{% endif %}>
+                {{ tr }}
+              </option>
+            {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('termination_reason')">+</button>
+        <button type="button" class="button is-small is-info ml-2"
+                onclick="addNewOption('termination_reason')">+</button>
       </div>
     </div>
 
@@ -116,15 +133,13 @@
           <select name="manager_name" id="manager_name" onchange="autoFillManagerId()">
             <option value="">-- Select Manager --</option>
             {% for m in managers %}
-              <option value="{{ m.manager_name }}"
-                data-id="{{ m.manager_id }}"
+              <option value="{{ m.manager_name }}" data-id="{{ m.manager_id }}"
                 {% if form_data.get('manager_name') == m.manager_name %}selected{% endif %}>
                 {{ m.manager_name }}
               </option>
             {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('manager_name')">+</button>
       </div>
     </div>
 
@@ -139,16 +154,19 @@
       <div class="control is-flex">
         <div class="select is-fullwidth">
           <select name="recruitment" id="recruitment">
-            <option>Agency</option>
-            <option>Referral</option>
-            <option>Direct</option>
+            {% for r in dropdowns.get("recruitment", ["Agency","Referral","Direct"]) %}
+              <option value="{{ r }}" {% if form_data.get("recruitment") == r %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('recruitment')">+</button>
+        <button type="button" class="button is-small is-info ml-2"
+                onclick="addNewOption('recruitment')">+</button>
       </div>
     </div>
 
-    <button class="button is-info mt-3" type="submit" name="action" value="save_section">Save Section</button>
+    <button class="button is-info mt-3" type="submit" name="action" value="save_section">
+      Save Section
+    </button>
   </div>
 
   <!-- PERFORMANCE & SALARY -->
@@ -184,18 +202,28 @@
       <div class="control is-flex">
         <div class="select is-fullwidth">
           <select name="country" id="country" onchange="loadStates()">
-            <option>India</option>
-            <option>USA</option>
+            {% for c in dropdowns.get("country", ["India","USA"]) %}
+              <option value="{{ c }}" {% if form_data.get("country") == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2" onclick="addNewOption('country')">+</button>
+        <button type="button" class="button is-small is-info ml-2"
+                onclick="addNewOption('country')">+</button>
       </div>
     </div>
 
     <div class="field">
       <label class="label">State</label>
       <div class="select is-fullwidth">
-        <select name="state" id="state"><option>--Select Country First--</option></select>
+        <select name="state" id="state">
+          {% if states %}
+            {% for s in states %}
+              <option value="{{ s }}" {% if form_data.get("state") == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          {% else %}
+            <option>--Select Country First--</option>
+          {% endif %}
+        </select>
       </div>
     </div>
 
@@ -220,9 +248,9 @@
 
 <!-- Tab Switching + Dynamic Logic -->
 <script>
+  // Tabs
   const tabs = document.querySelectorAll(".tabs li");
   const contents = document.querySelectorAll(".tab-content");
-
   tabs.forEach(tab => {
     tab.addEventListener("click", () => {
       tabs.forEach(t => t.classList.remove("is-active"));
@@ -232,17 +260,32 @@
     });
   });
 
-  function addNewOption(selectId) {
+  // Add option (POST to Flask + update dropdown)
+  async function addNewOption(selectId) {
     let newValue = prompt("Enter new value:");
-    if (newValue) {
+    if (!newValue) return;
+
+    let response = await fetch("/add_option", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ field: selectId, value: newValue })
+    });
+
+    let result = await response.json();
+    if (result.status === "success") {
       let select = document.getElementById(selectId);
       let opt = document.createElement("option");
-      opt.text = newValue; opt.value = newValue;
+      opt.text = newValue;
+      opt.value = newValue;
       select.add(opt);
       select.value = newValue;
+      alert(result.message);
+    } else {
+      alert("Error: " + result.message);
     }
   }
 
+  // Termination reason toggle
   function toggleTerminationReason() {
     let term = document.getElementById("terminated").value;
     let reason = document.getElementById("termination_reason");
@@ -250,34 +293,36 @@
     if (term === "0") reason.value = "N/A";
   }
 
-  const deptIds = { "HR": 101, "IT": 102, "Finance": 103 };
+  // Department ID (from data passed by backend, not hardcoded)
   function autoFillDepartmentId() {
-    let dept = document.getElementById("department").value;
-    document.getElementById("department_id").value = deptIds[dept] || "";
+    let deptSel = document.getElementById("department");
+    let selected = deptSel.options[deptSel.selectedIndex];
+    // backend can pass dept_id mapping in data-id attr
+    document.getElementById("department_id").value = selected.getAttribute("data-id") || "";
   }
 
-  const mgrIds = { "John Smith": 201, "Jane Doe": 202 };
+  // Manager ID (already has data-id)
   function autoFillManagerId() {
-    let mgr = document.getElementById("manager_name").value;
-    document.getElementById("manager_id").value = mgrIds[mgr] || "";
+    let mgrSel = document.getElementById("manager_name");
+    let selected = mgrSel.options[mgrSel.selectedIndex];
+    document.getElementById("manager_id").value = selected.getAttribute("data-id") || "";
   }
 
-  const statesByCountry = {
-    "India": ["Delhi", "Maharashtra", "Karnataka"],
-    "USA": ["California", "Texas", "New York"]
-  };
+  // States by country (loaded from backend ideally)
   function loadStates() {
     let ctry = document.getElementById("country").value;
-    let stateSel = document.getElementById("state");
-    stateSel.innerHTML = "";
-    if (statesByCountry[ctry]) {
-      statesByCountry[ctry].forEach(s => {
-        let opt = document.createElement("option");
-        opt.value = s; opt.text = s;
-        stateSel.add(opt);
+    fetch(`/get_states/${ctry}`)
+      .then(res => res.json())
+      .then(data => {
+        let stateSel = document.getElementById("state");
+        stateSel.innerHTML = "";
+        data.states.forEach(s => {
+          let opt = document.createElement("option");
+          opt.value = s;
+          opt.text = s;
+          stateSel.add(opt);
+        });
       });
-    }
   }
 </script>
-
 {% endblock %}
