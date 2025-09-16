@@ -37,7 +37,7 @@ default_values = {
 for field, options in default_values.items():
     mongo.db.dropdown_values.update_one(
         {"field": field},
-        {"$setOnInsert": {"options": options}},  # only set if not exists
+        {"$setOnInsert": {"options": options}},
         upsert=True,
     )
 
@@ -46,6 +46,13 @@ for field, options in default_values.items():
 def get_dropdown(field):
     record = mongo.db.dropdown_values.find_one({"field": field})
     return record["options"] if record else []
+
+
+@app.route("/delete_dropdown/<field>/<value>")
+def delete_dropdown_option(field, value):
+    mongo.db.dropdown_values.update_one({"field": field}, {"$pull": {"options": value}})
+    flash(f"{value} removed from {field} dropdown")
+    return redirect(url_for("manage_dropdowns"))  # adjust route name
 
 
 #
@@ -67,8 +74,15 @@ def manage_dropdowns():
             )
             flash(f"Added '{value}' to {field}")
 
+    # fetch dropdowns from DB
     dropdowns = list(mongo.db.dropdown_values.find({}, {"_id": 0}))
-    return render_template("manage_dropdowns.html", dropdowns=dropdowns)
+
+    return render_template(
+        "manage_dropdowns.html",
+        dropdowns=dropdowns,
+        user=session.get("user"),  # safe lookup
+        hr_id=session.get("hr_id"),  # safe lookup
+    )
 
 
 #
