@@ -1,9 +1,11 @@
-{% extends "base.html" %} {% block content %}
-<section class="section">
-  <div class="container">
-    <h1 class="title">Manage Dropdowns</h1>
-
-    <form method="POST" class="box">
+{% extends "base.html" %} {% block title %}Dropdowns{% endblock %} {% block
+content %}
+<div style="height: 80vh">
+  <div class="page-header">
+    <h1 class="title">⚙️ Manage Dropdowns</h1>
+  </div>
+  <div class="custom-box">
+    <form method="POST">
       <div class="field">
         <label class="label">Select Dropdown Field</label>
         <div class="control">
@@ -40,15 +42,25 @@
         <button class="button is-primary" type="submit">Add</button>
       </div>
     </form>
-
-    <hr />
-
-    <h2 class="subtitle">Current Dropdown Values</h2>
-    <ul>
-      {% for d in dropdowns %}
-      <li><strong>{{ d.field }}</strong>: {{ d.options|join(", ") }}</li>
-      {% endfor %}
-    </ul>
   </div>
-</section>
+  <div class="custom-box">
+    <h2 class="subtitle">📋 Current Dropdown Values</h2>
+    {% for d in dropdowns %}
+    <p class="mb-2"><strong>{{ d.field|capitalize }}</strong></p>
+    <div class="tags">
+      {% for opt in d.options %}
+      <span class="tag is-info is-light">
+        {{ opt }}
+        <a
+          href="{{ url_for('delete_dropdown_option', field=d.field, value=opt) }}"
+          class="delete is-small ml-2"
+          title="Remove {{ opt }}"
+        ></a>
+      </span>
+      {% endfor %}
+    </div>
+    <hr />
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}
