@@ -72,8 +72,10 @@
         <div class="select is-fullwidth">
           <select name="department" id="department" onchange="autoFillDepartmentId()">
             <option value="">Select Department</option>
-            {% for dept in dropdowns.get("department", []) %}
-              <option value="{{ dept }}" {% if form_data.get("department") == dept %}selected{% endif %}>
+            {% for dept in dropdowns.get("department", ["HR","Finance","IT","Operations"]) %}
+              <option value="{{ dept }}"
+                data-id="{{ loop.index }}"
+                {% if form_data.get("department") == dept %}selected{% endif %}>
                 {{ dept }}
               </option>
             {% endfor %}
@@ -85,46 +87,43 @@
     </div>
 
     <div class="field">
-      <label class="label">Department ID</label>
-      <input class="input" type="number" name="department_id" id="department_id" readonly
-             value="{{ form_data.get('department_id','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Employment Status</label>
-      <input class="input" type="text" name="employment_status"
-             value="{{ form_data.get('employment_status','') }}">
-    </div>
-
-    <div class="field">
-      <label class="label">Terminated (0/1)</label>
-      <div class="select is-fullwidth">
-        <select name="terminated" id="terminated" onchange="toggleTerminationReason()">
-          {% for t in dropdowns.get("terminated", ["0 - No","1 - Yes"]) %}
-            <option value="{{ t.split(' ')[0] }}" {% if form_data.get("terminated") == t.split(' ')[0] %}selected{% endif %}>
-              {{ t }}
-            </option>
-          {% endfor %}
-        </select>
+      <div class="control">
+        <input class="input" type="text" name="department_id" id="department_id"
+               placeholder="Department ID"
+               value="{{ form_data.get('department_id', '') }}" readonly>
       </div>
     </div>
 
     <div class="field">
-      <label class="label">Termination Reason</label>
-      <div class="control is-flex">
-        <div class="select is-fullwidth">
-          <select name="termination_reason" id="termination_reason" disabled>
-            {% for tr in dropdowns.get("termination_reason", ["N/A","Performance","Resigned","Layoff"]) %}
-              <option value="{{ tr }}" {% if form_data.get("termination_reason") == tr %}selected{% endif %}>
-                {{ tr }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-        <button type="button" class="button is-small is-info ml-2"
-                onclick="addNewOption('termination_reason')">+</button>
-      </div>
+  <label class="label">Employment Status</label>
+  <div class="select is-fullwidth">
+    <select name="employment_status" id="employment_status" onchange="toggleTerminationReason()">
+      <option value="Active" {% if form_data.get("employment_status") == "Active" %}selected{% endif %}>Active</option>
+      <option value="Non Active" {% if form_data.get("employment_status") == "Non Active" %}selected{% endif %}>Non Active</option>
+    </select>
+  </div>
+</div>
+
+<!-- Hidden Terminated field (auto-handled by JS) -->
+<input type="hidden" name="terminated" id="terminated" value="{{ form_data.get('terminated', '0') }}">
+
+
+    <div class="field" id="termination_reason_field" style="display:none;">
+  <label class="label">Termination Reason</label>
+  <div class="control is-flex">
+    <div class="select is-fullwidth">
+      <select name="termination_reason" id="termination_reason" disabled>
+        {% for tr in dropdowns.get("termination_reason", ["N/A","Performance","Resigned","Layoff"]) %}
+          <option value="{{ tr }}" {% if form_data.get("termination_reason") == tr %}selected{% endif %}>
+            {{ tr }}
+          </option>
+        {% endfor %}
+      </select>
     </div>
+    <button type="button" class="button is-small is-info ml-2"
+            onclick="addNewOption('termination_reason')">+</button>
+  </div>
+</div>
 
     <div class="field">
       <label class="label">Manager Name</label>
@@ -324,5 +323,26 @@
         });
       });
   }
+
+  function toggleTerminationReason() {
+  const status = document.getElementById("employment_status").value;
+  const terminatedInput = document.getElementById("terminated");
+  const termReasonField = document.getElementById("termination_reason_field");
+  const termReasonSelect = document.getElementById("termination_reason");
+
+  if (status === "Active") {
+    terminatedInput.value = "0";
+    termReasonField.style.display = "none";
+    termReasonSelect.disabled = true;
+    termReasonSelect.value = "N/A";
+  } else {
+    terminatedInput.value = "1";
+    termReasonField.style.display = "block";
+    termReasonSelect.disabled = false;
+  }
+}
+
+// Run once on page load
+document.addEventListener("DOMContentLoaded", toggleTerminationReason);
 </script>
 {% endblock %}
