@@ -6,6 +6,8 @@ from email.mime.multipart import MIMEMultipart
 from flask_mail import Mail, Message
 import os
 from dotenv import load_dotenv
+import requests
+from flask import jsonify, request
 
 load_dotenv()  # loads .env into environment variables
 app = Flask(__name__)
@@ -42,6 +44,27 @@ for field, options in default_values.items():
     )
 
 
+#
+API_KEY = os.getenv("CSC_API_KEY")
+BASE_URL = "https://api.countrystatecity.in/v1"
+HEADERS = {"X-CSCAPI-KEY": API_KEY}
+
+
+@app.route("/api/countries")
+def get_countries():
+    url = f"{BASE_URL}/countries"
+    response = requests.get(url, headers=HEADERS)
+    return jsonify(response.json())
+
+
+@app.route("/api/states/<country_iso>")
+def get_states(country_iso):
+    url = f"{BASE_URL}/countries/{country_iso}/states"
+    response = requests.get(url, headers=HEADERS)
+    return jsonify(response.json())
+
+
+#
 # --------- Load dropdown values ---------
 def get_dropdown(field):
     record = mongo.db.dropdown_values.find_one({"field": field})
