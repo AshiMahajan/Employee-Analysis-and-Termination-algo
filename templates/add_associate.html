@@ -81,8 +81,6 @@
             {% endfor %}
           </select>
         </div>
-        <button type="button" class="button is-small is-info ml-2"
-                onclick="addNewOption('department')">+</button>
       </div>
     </div>
 
@@ -361,75 +359,60 @@
 document.addEventListener("DOMContentLoaded", toggleTerminationReason);
 
 
-// 
+// JS for countries/states
+
+let countriesData = [];  // store fetched countries for lookup
+
+// Load countries on page load
 async function loadCountries() {
-  let response = await fetch("/api/countries");
-  let countries = await response.json();
-  let countrySelect = document.getElementById("country");
-  countrySelect.innerHTML = '<option value="">-- Select Country --</option>';
-  countries.forEach(c => {
-    let opt = document.createElement("option");
-    opt.value = c.iso2;   // API returns iso2 code
-    opt.textContent = c.name;
-    countrySelect.appendChild(opt);
-  });
-}
+    const res = await fetch('/api/countries');
+    countriesData = await res.json();
 
-async function loadStates() {
-  let countryCode = document.getElementById("country").value;
-  if (!countryCode) return;
-  let response = await fetch(`/api/states/${countryCode}`);
-  let states = await response.json();
-  let stateSelect = document.getElementById("state");
-  stateSelect.innerHTML = '<option value="">-- Select State --</option>';
-  states.forEach(s => {
-    let opt = document.createElement("option");
-    opt.value = s.name;
-    opt.textContent = s.name;
-    stateSelect.appendChild(opt);
-  });
-}
+    const countrySelect = document.getElementById('country');
+    countrySelect.innerHTML = '<option value="">-- Select Country --</option>';
 
-document.addEventListener("DOMContentLoaded", loadCountries);
-// 
-document.addEventListener("DOMContentLoaded", function() {
-  // Load countries on page load
-  fetch("/api/countries")
-    .then(res => res.json())
-    .then(data => {
-      const countrySelect = document.getElementById("country");
-      const savedCountry = "{{ form_data.get('country','') }}"; // prefill from session
-      data.forEach(c => {
-        const option = document.createElement("option");
-        option.value = c.iso2;
+    const savedCountry = "{{ form_data.get('country','') }}";
+
+    countriesData.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.name;
         option.textContent = c.name;
-        if (savedCountry === c.iso2) option.selected = true;
+        if (savedCountry === c.name) option.selected = true;
         countrySelect.appendChild(option);
-      });
-      if (savedCountry) loadStates(savedCountry); // auto-load states if country saved
     });
-});
 
-function loadStates(countryIso = null) {
-  const countrySelect = document.getElementById("country");
-  const stateSelect = document.getElementById("state");
-  const selectedCountry = countryIso || countrySelect.value;
+    if (savedCountry) loadStates(savedCountry);
+}
 
-  if (!selectedCountry) return;
+async function loadStates(selectedCountry = null) {
+    const countrySelect = document.getElementById('country');
+    const stateSelect = document.getElementById('state');
 
-  fetch(`/api/states/${selectedCountry}`)
-    .then(res => res.json())
-    .then(data => {
-      stateSelect.innerHTML = "";
-      const savedState = "{{ form_data.get('state','') }}"; // prefill from session
-      data.forEach(s => {
-        const option = document.createElement("option");
-        option.value = s.iso2;
+    const countryName = selectedCountry || countrySelect.value;
+    if (!countryName) return;
+
+    const countryIso = countriesData.find(c => c.name === countryName)?.iso2;
+    if (!countryIso) return;
+
+    const res = await fetch(`/api/states/${countryIso}`);
+    const states = await res.json();
+
+    stateSelect.innerHTML = '<option value="">-- Select State --</option>';
+
+    const savedState = "{{ form_data.get('state','') }}";
+    states.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s.name;
         option.textContent = s.name;
-        if (savedState === s.iso2) option.selected = true;
+        if (savedState === s.name) option.selected = true;
         stateSelect.appendChild(option);
-      });
     });
 }
+
+// Event listener for country change
+document.getElementById('country').addEventListener('change', () => loadStates());
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', loadCountries);
 </script>
 {% endblock %}
