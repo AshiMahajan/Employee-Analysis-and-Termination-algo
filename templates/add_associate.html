@@ -198,16 +198,10 @@
   <div class="tab-content" id="other" style="display: none;">
     <div class="field">
       <label class="label">Country</label>
-      <div class="control is-flex">
-        <div class="select is-fullwidth">
-          <select name="country" id="country" onchange="loadStates()">
-            {% for c in dropdowns.get("country", ["India","USA"]) %}
-              <option value="{{ c }}" {% if form_data.get("country") == c %}selected{% endif %}>{{ c }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <button type="button" class="button is-small is-info ml-2"
-                onclick="addNewOption('country')">+</button>
+      <div class="select is-fullwidth">
+        <select name="country" id="country" onchange="loadStates()">
+          <option value="">-- Select Country --</option>
+        </select>
       </div>
     </div>
 
@@ -215,13 +209,7 @@
       <label class="label">State</label>
       <div class="select is-fullwidth">
         <select name="state" id="state">
-          {% if states %}
-            {% for s in states %}
-              <option value="{{ s }}" {% if form_data.get("state") == s %}selected{% endif %}>{{ s }}</option>
-            {% endfor %}
-          {% else %}
-            <option>--Select Country First--</option>
-          {% endif %}
+          <option value="">-- Select Country First --</option>
         </select>
       </div>
     </div>
@@ -344,5 +332,38 @@
 
 // Run once on page load
 document.addEventListener("DOMContentLoaded", toggleTerminationReason);
+
+
+// 
+async function loadCountries() {
+  let response = await fetch("/api/countries");
+  let countries = await response.json();
+  let countrySelect = document.getElementById("country");
+  countrySelect.innerHTML = '<option value="">-- Select Country --</option>';
+  countries.forEach(c => {
+    let opt = document.createElement("option");
+    opt.value = c.iso2;   // API returns iso2 code
+    opt.textContent = c.name;
+    countrySelect.appendChild(opt);
+  });
+}
+
+async function loadStates() {
+  let countryCode = document.getElementById("country").value;
+  if (!countryCode) return;
+  let response = await fetch(`/api/states/${countryCode}`);
+  let states = await response.json();
+  let stateSelect = document.getElementById("state");
+  stateSelect.innerHTML = '<option value="">-- Select State --</option>';
+  states.forEach(s => {
+    let opt = document.createElement("option");
+    opt.value = s.name;
+    opt.textContent = s.name;
+    stateSelect.appendChild(opt);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadCountries);
+// 
 </script>
 {% endblock %}
