@@ -197,30 +197,57 @@
   <!-- OTHER DETAILS -->
   <div class="tab-content" id="other" style="display: none;">
     <div class="field">
-      <label class="label">Country</label>
-      <div class="select is-fullwidth">
-        <select name="country" id="country" onchange="loadStates()">
-          <option value="">-- Select Country --</option>
-        </select>
-      </div>
+    <label class="label">Country</label>
+    <div class="select is-fullwidth">
+      <select name="country" id="country" onchange="loadStates()">
+        <option value="">-- Select Country --</option>
+      </select>
     </div>
+  </div>
+
+  <div class="field">
+    <label class="label">State</label>
+    <div class="select is-fullwidth">
+      <select name="state" id="state">
+        <option value="">-- Select Country First --</option>
+      </select>
+    </div>
+  </div>
 
     <div class="field">
-      <label class="label">State</label>
-      <div class="select is-fullwidth">
-        <select name="state" id="state">
-          <option value="">-- Select Country First --</option>
-        </select>
-      </div>
-    </div>
+  <label class="label">ZIP</label>
+  <input class="input" type="text" name="zip" value="{{ form_data.get('zip','') }}">
+</div>
 
-    <div class="field"><label class="label">ZIP</label><input class="input" type="text" name="zip"></div>
-    <div class="field"><label class="label">DOB</label><input class="input" type="date" name="dob"></div>
-    <div class="field"><label class="label">Date of Hire</label><input class="input" type="date" name="dateofhire"></div>
-    <div class="field"><label class="label">Race</label><input class="input" type="text" name="race"></div>
-    <div class="field"><label class="label">Last Performance Review Date</label><input class="input" type="date" name="last_review"></div>
-    <div class="field"><label class="label">Days Late</label><input class="input" type="number" name="days_late"></div>
-    <div class="field"><label class="label">Absences</label><input class="input" type="number" name="absences"></div>
+<div class="field">
+  <label class="label">DOB</label>
+  <input class="input" type="date" name="dob" value="{{ form_data.get('dob','') }}">
+</div>
+
+<div class="field">
+  <label class="label">Date of Hire</label>
+  <input class="input" type="date" name="dateofhire" value="{{ form_data.get('dateofhire','') }}">
+</div>
+
+<div class="field">
+  <label class="label">Race</label>
+  <input class="input" type="text" name="race" value="{{ form_data.get('race','') }}">
+</div>
+
+<div class="field">
+  <label class="label">Last Performance Review Date</label>
+  <input class="input" type="date" name="last_review" value="{{ form_data.get('last_review','') }}">
+</div>
+
+<div class="field">
+  <label class="label">Days Late</label>
+  <input class="input" type="number" name="days_late" value="{{ form_data.get('days_late','') }}">
+</div>
+
+<div class="field">
+  <label class="label">Absences</label>
+  <input class="input" type="number" name="absences" value="{{ form_data.get('absences','') }}">
+</div>
 
     <button class="button is-info mt-3" type="submit" name="action" value="save_section">Save Section</button>
   </div>
@@ -365,5 +392,44 @@ async function loadStates() {
 
 document.addEventListener("DOMContentLoaded", loadCountries);
 // 
+document.addEventListener("DOMContentLoaded", function() {
+  // Load countries on page load
+  fetch("/api/countries")
+    .then(res => res.json())
+    .then(data => {
+      const countrySelect = document.getElementById("country");
+      const savedCountry = "{{ form_data.get('country','') }}"; // prefill from session
+      data.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.iso2;
+        option.textContent = c.name;
+        if (savedCountry === c.iso2) option.selected = true;
+        countrySelect.appendChild(option);
+      });
+      if (savedCountry) loadStates(savedCountry); // auto-load states if country saved
+    });
+});
+
+function loadStates(countryIso = null) {
+  const countrySelect = document.getElementById("country");
+  const stateSelect = document.getElementById("state");
+  const selectedCountry = countryIso || countrySelect.value;
+
+  if (!selectedCountry) return;
+
+  fetch(`/api/states/${selectedCountry}`)
+    .then(res => res.json())
+    .then(data => {
+      stateSelect.innerHTML = "";
+      const savedState = "{{ form_data.get('state','') }}"; // prefill from session
+      data.forEach(s => {
+        const option = document.createElement("option");
+        option.value = s.iso2;
+        option.textContent = s.name;
+        if (savedState === s.iso2) option.selected = true;
+        stateSelect.appendChild(option);
+      });
+    });
+}
 </script>
 {% endblock %}
