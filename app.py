@@ -32,8 +32,6 @@ default_values = {
     "marital_status": ["Single", "Married"],
     "termination_reason": ["Resigned", "Fired", "Retired"],
     "recruitment": ["Referral", "Job Portal", "Campus"],
-    "country": ["India", "USA"],
-    "state": ["Delhi", "Maharashtra", "California", "Texas"],
 }
 
 for field, options in default_values.items():
@@ -285,6 +283,7 @@ def add_associate():
             session["new_associate"].update(section_data)
             session.modified = True
             flash("Section saved! (Not yet stored in DB)")
+            return redirect(url_for("add_associate"))  # reload with data prefilled
 
         elif action == "proceed":
             associate_data = session.get("new_associate", {})
@@ -302,7 +301,6 @@ def add_associate():
         mongo.db.managers.find({}, {"_id": 0, "manager_name": 1, "manager_id": 1})
     )
     recruitments = get_dropdown("recruitment")
-    countries = get_dropdown("country")
 
     return render_template(
         "add_associate.html",
@@ -315,7 +313,6 @@ def add_associate():
         term_reasons=term_reasons,
         managers=managers,
         recruitments=recruitments,
-        countries=countries,
         dropdowns={
             "gender": genders,
             "marital_status": marital_statuses,
@@ -323,8 +320,8 @@ def add_associate():
             "termination_reason": term_reasons,
             "managers": managers,
             "recruitment": recruitments,
-            "country": countries,
         },
+        zip="zip",
     )
 
 
