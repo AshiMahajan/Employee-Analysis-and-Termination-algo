@@ -230,6 +230,48 @@ def dashboard():
     )
 
 
+#
+import pandas as pd
+
+# Visualization
+from ml_utils import (
+    get_employee_dataframe,
+    plot_department_count,
+    plot_recruitment_pie,
+    plot_gender_distribution,
+    plot_country_state,
+    plot_termination_reason,
+)
+
+
+@app.route("/visualization")
+def visualization():
+    df = get_employee_dataframe()
+    if df.empty:
+        return render_template(
+            "visualization.html", plots=None, message="No employee data available."
+        )
+
+    plots = {
+        "Department Count": plot_department_count(df),
+        "Recruitment Source": plot_recruitment_pie(df),
+        "Gender Distribution": plot_gender_distribution(df),
+        "Country-wise Employees": plot_country_state(df),
+        "Termination Reasons": plot_termination_reason(df),
+    }
+
+    return render_template(
+        "visualization.html",
+        plots=plots,
+        message=None,
+        user=session["user"],
+        hr_id=session["hr_id"],
+    )
+
+
+#
+
+
 # Enter employee data
 @app.route("/manager", methods=["GET", "POST"])
 def add_manager():
