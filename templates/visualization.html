@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block title %}Employee Visualization{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>📊 Employee Visualizations</h1>
+
+  {% if message %}
+  <p>{{ message }}</p>
+  {% endif %} {% if plots %} {% for title, plot_html in plots.items() %}
+  <h2>{{ title }}</h2>
+  <div>{{ plot_html|safe }}</div>
+  <hr />
+  {% endfor %} {% endif %}
+
+  <br />
+  <a href="{{ url_for('dashboard') }}">⬅ Back to Dashboard</a>
+</div>
+{% endblock %}
