@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h2>🔮 Attrition Predictor</h2>
+
+  <form method="POST">
+    <div class="form-group">
+      <label>Select Associate</label>
+      <select name="associate_name" class="form-control" required>
+        <option value="">-- Choose an Associate --</option>
+        {% for name in associate_names %}
+        <option value="{{ name }}" {% if selected_name == name %}selected{% endif %}>
+          {{ name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Get Attrition Report</button>
+  </form>
+
+  {% if result %}
+  <div class="alert alert-info mt-3">
+    Prediction for <b>{{ selected_name }}</b>:
+    <span class="fw-bold">{{ result }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
