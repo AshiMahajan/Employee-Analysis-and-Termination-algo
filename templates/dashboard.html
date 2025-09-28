@@ -142,7 +142,7 @@ content %}
     class="circle-button top-right"
     style="rotate: 135deg; margin-top: -1rem; transform: scale(-1)"
   >
-    <a href="#" class="button is-success">🔍 Employee Insights</a>
+    <a href="{{ url_for('associate_insights') }}" class="button is-success">🔍 Employee Insights</a>
   </div>
 
   <!-- Bottom Left -->
@@ -150,7 +150,7 @@ content %}
     class="circle-button bottom-left"
     style="rotate: 315deg; margin-top: 3rem; top: 70%; left: 27%"
   >
-    <a href="#" class="button is-warning">📈 Attrition Predictor</a>
+    <a href="{{ url_for('associate_attrition') }}" class="button is-warning">📈 Attrition Predictor</a>
   </div>
 
   <!-- Bottom Right -->
