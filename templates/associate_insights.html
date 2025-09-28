@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Associate's Insights{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="mb-4">👤 Associate's Insights</h1>
+
+  <!-- Dropdown Form -->
+  <form method="POST" class="mb-4">
+    <label for="associate_name"><b>Select associate:</b></label>
+    <select name="associate_name" id="associate_name" class="form-control w-50 d-inline">
+      <option value="">-- Choose --</option>
+      {% for name in associate_names %}
+        <option value="{{ name }}" {% if name == selected_name %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Get Insights</button>
+  </form>
+
+  {% if selected_name %}
+    {% if insights.error %}
+      <div class="alert alert-danger">{{ insights.error }}</div>
+    {% else %}
+      <!-- Associate's Details -->
+      <div class="card p-3 mb-4">
+        <h3>📌 Associate's Details</h3>
+        <ul>
+          {% for key, value in insights.items() if value %}
+            <li><b>{{ key }}:</b> {{ value }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Visualizations -->
+      <h3>📊 Visualizations</h3>
+      {% for graph in graphs_html %}
+        <div class="mb-4">{{ graph|safe }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
