@@ -8,6 +8,8 @@ import os
 from dotenv import load_dotenv
 import requests
 from flask import jsonify, request
+import pandas as pd
+
 
 load_dotenv()  # loads .env into environment variables
 app = Flask(__name__)
@@ -230,9 +232,6 @@ def dashboard():
     )
 
 
-#
-import pandas as pd
-
 # Visualization
 from ml_utils import (
     get_employee_dataframe,
@@ -270,6 +269,68 @@ def visualization():
 
 
 #
+
+from associate_insights import (
+    get_associate_dataframe,
+    get_associate_names,
+    get_associate_insights,
+)
+
+
+@app.route("/associate_insights", methods=["GET", "POST"])
+def associate_insights():
+    associate_names = get_associate_names()
+    selected_name = request.form.get("associate_name")
+
+    insights, figs = ({}, [])
+    if selected_name:
+        insights, figs = get_associate_insights(selected_name)
+
+    graphs_html = [f.to_html(full_html=False) for f in figs]
+
+    return render_template(
+        "associate_insights.html",
+        associate_names=associate_names,
+        selected_name=selected_name,
+        insights=insights,
+        graphs_html=graphs_html,
+    )
+
+
+# Attrition Prediction
+from associate_attrition import predict_employee, fetch_data, train_model
+
+
+@app.route("/associate_attrition", methods=["GET", "POST"])
+def associate_attrition():
+    result = None
+    selected_name = None
+
+    # Fetch associates for dropdown
+    df = fetch_data()
+    if df.empty or "associate_name" not in df.columns:
+        associate_names = []
+    else:
+        associate_names = df["associate_name"].dropna().unique().tolist()
+
+    if request.method == "POST":
+        selected_name = request.form.get("associate_name")
+
+        # Train model on current data before prediction
+        try:
+            train_model()
+        except Exception as e:
+            print("⚠ Model training failed:", e)
+
+        # Predict attrition for selected associate
+        result = predict_employee(selected_name)
+
+    return render_template(
+        "attrition.html",
+        result=result,
+        associate_names=associate_names,
+        selected_name=selected_name,
+    )
 
 
 # Enter employee data
