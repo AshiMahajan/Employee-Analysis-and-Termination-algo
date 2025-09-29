@@ -10,10 +10,17 @@ import requests
 from flask import jsonify, request
 import pandas as pd
 
+# CSV
+from csv_routes import csv_bp
+
+#
 
 load_dotenv()  # loads .env into environment variables
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
+
+# for CSV
+app.register_blueprint(csv_bp)
 
 # MongoDB connection string
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
