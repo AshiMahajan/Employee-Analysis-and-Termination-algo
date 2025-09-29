@@ -175,6 +175,37 @@
       <div class="sidebar" style="justify-content: center">
         <!-- Only Employees Button -->
         <div style="display: flex; flex-direction: column; gap: 100px">
+            
+<!-- Upload Button (ensure this exists outside the modal, e.g., in your main content) -->
+<button id="uploadCsvBtn" class="button is-link is-small">Upload CSV or Excel</button>
+
+<!-- Modal -->
+<div id="csvModal" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Upload CSV or Excel</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+    <section class="modal-card-body">
+      <form id="csvUploadForm" enctype="multipart/form-data">
+        <div class="file is-boxed is-centered has-name">
+          <label class="file-label">
+            <input class="file-input" type="file" name="file" accept=".csv,.xls,.xlsx" required>
+            <span class="file-cta">
+              <span class="file-icon">📂</span>
+              <span class="file-label">Drag & Drop CSV/XLS or Click to Browse</span>
+            </span>
+            <span class="file-name">No file selected</span>
+          </label>
+        </div>
+        <br />
+        <button type="submit" class="button is-link is-fullwidth">Upload</button>
+      </form>
+      <div id="csvResult" style="margin-top:1rem;"></div>
+    </section>
+  </div>
+</div>
           <!-- Dashboard button -->
           <a
             href="{{ url_for('dashboard') }}"
@@ -330,6 +361,56 @@
     <div class="greet-text">${getGreeting()}</div>
     <div class="greet-user">{{ user }}</div>
   `;
+
+  // CSV
+document.addEventListener("DOMContentLoaded", function() {
+  const uploadBtn = document.getElementById("uploadCsvBtn");
+  const modal = document.getElementById("csvModal");
+  const deleteBtn = modal.querySelector(".delete");
+  const modalBg = modal.querySelector(".modal-background");
+  const form = document.getElementById("csvUploadForm");
+  const fileInput = form.querySelector(".file-input");
+  const fileNameSpan = form.querySelector(".file-name");
+  const resultBox = document.getElementById("csvResult");
+
+  // Open modal
+  uploadBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.classList.add("is-active");
+  });
+
+  // Close modal
+  [deleteBtn, modalBg].forEach(el => {
+    el.addEventListener("click", () => modal.classList.remove("is-active"));
+  });
+
+  // Show filename
+  fileInput.addEventListener("change", (e) => {
+    fileNameSpan.textContent = e.target.files[0]?.name || "No file selected";
+  });
+
+  // AJAX upload
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    let formData = new FormData(form);
+
+    resultBox.innerHTML = "⏳ Uploading...";
+    try {
+      let res = await fetch("{{ url_for('csv_bp.csv_upload') }}", {
+        method: "POST",
+        body: formData
+      });
+      let data = await res.json();
+      if (data.success) {
+        resultBox.innerHTML = `<p class="has-text-success">${data.message}</p>`;
+      } else {
+        resultBox.innerHTML = `<p class="has-text-danger">❌ ${data.message}</p>`;
+      }
+    } catch (err) {
+      resultBox.innerHTML = `<p class="has-text-danger">❌ Upload failed: ${err}</p>`;
+    }
+  });
+});
     </script>
   </body>
 </html>
