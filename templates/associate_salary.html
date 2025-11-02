@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h2>💰 Salary Predictor</h2>
+
+  <form method="POST">
+    <div class="form-group">
+      <label>Select Associate</label>
+      <select name="associate_name" class="form-control" required>
+        <option value="">-- Choose an Associate --</option>
+        {% for name in associate_names %}
+        <option value="{{ name }}" {% if selected_name == name %}selected{% endif %}>
+          {{ name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Get Salary Report</button>
+  </form>
+
+  {% if result %}
+  <div class="alert alert-info mt-3">
+    Salary analysis for <b>{{ selected_name }}</b>
+  </div>
+
+  <!-- Salary details -->
+  <div class="mt-3">
+    <h5>Employee Salary Details</h5>
+    <ul>
+      {% for line in result.text_output %}
+      <li>{{ line }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Salary charts -->
+  {% if result.figures %}
+  <div class="mt-3">
+    <h5>Visualizations</h5>
+    {% for fig in result.figures %}
+    <img
+      src="data:image/png;base64,{{ fig }}"
+      alt="Salary Chart"
+      class="img-fluid mb-3"
+    />
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
