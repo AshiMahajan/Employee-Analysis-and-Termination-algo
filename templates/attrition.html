@@ -19,10 +19,48 @@
   </form>
 
   {% if result %}
-  <div class="alert alert-info mt-3">
-    Prediction for <b>{{ selected_name }}</b>:
-    <span class="fw-bold">{{ result }}</span>
-  </div>
-  {% endif %}
+<div class="alert alert-info mt-3">
+  Prediction for <b>{{ selected_name }}</b>:
+  <span class="fw-bold">{{ result.prediction }}</span>
+  {% if result.probability %} ({{ result.probability }}% chance) {% endif %}
+</div>
+
+<!-- Optional: Show details -->
+<div class="mt-3">
+  <h5>Employee Details</h5>
+  <ul>
+    {% for key, value in result.details.items() %}
+    <li><b>{{ key }}:</b> {{ value }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- Optional: Numeric insights -->
+{% if result.numeric_insights %}
+<div class="mt-3">
+  <h5>Key Factors vs Company Median</h5>
+  <table class="table table-sm table-bordered">
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Employee</th>
+        <th>Company Median</th>
+        <th>Diff</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in result.numeric_insights %}
+      <tr>
+        <td>{{ row.field }}</td>
+        <td>{{ row.employee }}</td>
+        <td>{{ row.company_median }}</td>
+        <td>{{ row.diff }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %} {% endif %}
+
 </div>
 {% endblock %}
