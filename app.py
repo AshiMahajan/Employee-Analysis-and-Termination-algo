@@ -313,30 +313,76 @@ def associate_attrition():
     result = None
     selected_name = None
 
-    # Fetch associates for dropdown
-    df = fetch_data()
+    # ✅ Load associates from MongoDB
+    df = fetch_data()  # <-- must return pandas DataFrame built from Mongo
     if df.empty or "associate_name" not in df.columns:
         associate_names = []
     else:
-        associate_names = df["associate_name"].dropna().unique().tolist()
+        # Drop duplicates, sort alphabetically
+        associate_names = (
+            df["associate_name"].dropna().drop_duplicates().sort_values().tolist()
+        )
 
     if request.method == "POST":
         selected_name = request.form.get("associate_name")
 
-        # Train model on current data before prediction
-        try:
-            train_model()
-        except Exception as e:
-            print("⚠ Model training failed:", e)
+        if selected_name:
+            # Train model fresh before prediction
+            try:
+                train_model()
+            except Exception as e:
+                print("⚠ Model training failed:", e)
 
-        # Predict attrition for selected associate
-        result = predict_employee(selected_name)
+            # Run prediction for selected associate
+            try:
+                result = predict_employee(selected_name)
+            except Exception as e:
+                print("⚠ Prediction failed:", e)
 
     return render_template(
         "attrition.html",
-        result=result,
         associate_names=associate_names,
         selected_name=selected_name,
+        result=result,
+    )
+
+
+# Salary prediction
+from associate_salary import analyze_salary
+
+
+@app.route("/associate_salary", methods=["GET", "POST"])
+def associate_salary():
+    result = None
+    selected_name = None
+
+    # ✅ Load associates from MongoDB
+    df = fetch_data()  # <-- must return pandas DataFrame from Mongo
+    if df.empty or "associate_name" not in df.columns:
+        associate_names = []
+    else:
+        # Drop duplicates, sort alphabetically
+        associate_names = (
+            df["associate_name"].dropna().drop_duplicates().sort_values().tolist()
+        )
+
+    if request.method == "POST":
+        selected_name = request.form.get("associate_name")
+
+        if selected_name:
+            try:
+                # Run salary analysis pipeline
+                from associate_salary import analyze_salary
+
+                result = analyze_salary(df, selected_name)
+            except Exception as e:
+                print("⚠ Salary analysis failed:", e)
+
+    return render_template(
+        "associate_salary.html",
+        associate_names=associate_names,
+        selected_name=selected_name,
+        result=result,
     )
 
 
