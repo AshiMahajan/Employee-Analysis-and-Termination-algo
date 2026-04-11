@@ -1,17 +1,118 @@
-{% extends "base.html" %} {% block title %}Employee Visualization{% endblock %}
-{% block content %}
-<div class="container">
-  <h1>📊 Employee Visualizations</h1>
+{% extends "base.html" %} {% block title %} Employee Visualization {% endblock
+%} {% block content %}
 
-  {% if message %}
-  <p>{{ message }}</p>
-  {% endif %} {% if plots %} {% for title, plot_html in plots.items() %}
-  <h2>{{ title }}</h2>
-  <div>{{ plot_html|safe }}</div>
-  <hr />
-  {% endfor %} {% endif %}
+<style>
+  .viz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
 
-  <br />
-  <a href="{{ url_for('dashboard') }}">⬅ Back to Dashboard</a>
+  .viz-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .viz-sub {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  .viz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 18px;
+  }
+
+  .viz-card {
+    background: white;
+    border: 0.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 18px;
+    transition: 0.2s;
+  }
+
+  .viz-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .viz-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #374151;
+  }
+
+  .viz-empty {
+    background: white;
+    border: 0.5px dashed rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    color: #9ca3af;
+  }
+
+  .back-btn {
+    margin-top: 20px;
+    display: inline-block;
+    background: #185fa5;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-decoration: none;
+    transition: 0.2s;
+  }
+
+  .back-btn:hover {
+    background: #0c447c;
+  }
+</style>
+
+<!-- HEADER -->
+
+<div class="viz-header">
+  <div>
+    <div class="viz-title">📊 Workforce Analytics Dashboard</div>
+
+    <div class="viz-sub">
+      Interactive visual insights across employees, salary, attrition signals
+      and departments
+    </div>
+  </div>
 </div>
+
+<!-- MESSAGE STATE -->
+
+{% if message %}
+
+<div class="viz-empty">{{ message }}</div>
+
+{% endif %}
+
+<!-- VISUALIZATION GRID -->
+
+{% if plots %}
+
+<div class="viz-grid">
+  {% for title, plot_html in plots.items() %}
+
+  <div class="viz-card">
+    <div class="viz-card-title">{{ title }}</div>
+
+    <div>{{ plot_html|safe }}</div>
+  </div>
+
+  {% endfor %}
+</div>
+
+{% endif %}
+
+<!-- BACK BUTTON -->
+
+<a href="{{ url_for('dashboard') }}" class="back-btn"> ⬅ Back to Dashboard </a>
+
 {% endblock %}

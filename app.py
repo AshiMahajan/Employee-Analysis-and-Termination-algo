@@ -14,6 +14,17 @@ import pandas as pd
 from csv_routes import csv_bp
 
 #
+from datetime import datetime
+
+
+# @app.context_processor
+# def inject_globals():
+#     hour = datetime.now().hour
+#     tod = "morning" if hour < 12 else "afternoon" if hour < 17 else "evening"
+#     return {"time_of_day": tod}
+
+
+#
 
 load_dotenv()  # loads .env into environment variables
 app = Flask(__name__)
@@ -216,18 +227,40 @@ def login():
     return render_template("login.html")
 
 
-# Dashboard
-@app.route("/dashboard")
+@app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if "user" not in session:
         flash("Please login first.")
         return redirect(url_for("login"))
 
-    # Fetch all employees from MongoDB
-    filter_type = request.args.get("filter", None)
-
+    filter_type = request.args.get("filter")
     managers = list(mongo.db.managers.find({}, {"_id": 0}))
     associates = list(mongo.db.associates.find({}, {"_id": 0}))
+
+    insights = None
+    selected_name = None
+    show_modal = False
+
+    if request.method == "POST":
+        search_term = request.form.get("associate_name", "").strip()
+
+        if search_term:
+            associate = mongo.db.associates.find_one(
+                {
+                    "$or": [
+                        {"associate_name": search_term},
+                        {"associate_id": search_term},
+                    ]
+                },
+                {"_id": 0},
+            )
+            if associate:
+                insights = associate
+                selected_name = associate.get("associate_name", search_term)
+            else:
+                insights = {"error": f"No employee found for '{search_term}'"}
+                selected_name = search_term
+            show_modal = True
 
     return render_template(
         "dashboard.html",
@@ -236,6 +269,9 @@ def dashboard():
         filter=filter_type,
         managers=managers,
         associates=associates,
+        insights=insights,
+        selected_name=selected_name,
+        show_modal=show_modal,
     )
 
 
@@ -252,10 +288,20 @@ from ml_utils import (
 
 @app.route("/visualization")
 def visualization():
+
+    if "user" not in session:
+        flash("Please login first.")
+        return redirect(url_for("login"))
+
     df = get_employee_dataframe()
+
     if df.empty:
         return render_template(
-            "visualization.html", plots=None, message="No employee data available."
+            "visualization.html",
+            plots=None,
+            message="No employee data available.",
+            user=session["user"],
+            hr_id=session["hr_id"],
         )
 
     plots = {
@@ -286,14 +332,23 @@ from associate_insights import (
 
 @app.route("/associate_insights", methods=["GET", "POST"])
 def associate_insights():
+
+    if "user" not in session:
+        flash("Please login first.")
+        return redirect(url_for("login"))
+
     associate_names = get_associate_names()
+
     selected_name = request.form.get("associate_name")
 
-    insights, figs = ({}, [])
+    insights = {}
+    graphs_html = []
+
     if selected_name:
+
         insights, figs = get_associate_insights(selected_name)
 
-    graphs_html = [f.to_html(full_html=False) for f in figs]
+        graphs_html = [f.to_html(full_html=False) for f in figs]
 
     return render_template(
         "associate_insights.html",
@@ -301,6 +356,8 @@ def associate_insights():
         selected_name=selected_name,
         insights=insights,
         graphs_html=graphs_html,
+        user=session["user"],
+        hr_id=session["hr_id"],
     )
 
 
