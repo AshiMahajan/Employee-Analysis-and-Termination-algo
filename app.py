@@ -229,11 +229,13 @@ def login():
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
+
     if "user" not in session:
         flash("Please login first.")
         return redirect(url_for("login"))
 
     filter_type = request.args.get("filter")
+
     managers = list(mongo.db.managers.find({}, {"_id": 0}))
     associates = list(mongo.db.associates.find({}, {"_id": 0}))
 
@@ -242,24 +244,37 @@ def dashboard():
     show_modal = False
 
     if request.method == "POST":
+
         search_term = request.form.get("associate_name", "").strip()
 
         if search_term:
+
+            associate = None
+
+            # STEP 1 — search by name
             associate = mongo.db.associates.find_one(
-                {
-                    "$or": [
-                        {"associate_name": search_term},
-                        {"associate_id": search_term},
-                    ]
-                },
+                {"associate_name": search_term},
                 {"_id": 0},
             )
+
+            # STEP 2 — search by ID if name not found
+            if not associate:
+                try:
+                    associate = mongo.db.associates.find_one(
+                        {"associate_id": int(search_term)},
+                        {"_id": 0},
+                    )
+                except ValueError:
+                    pass
+
+            # STEP 3 — result handling
             if associate:
                 insights = associate
                 selected_name = associate.get("associate_name", search_term)
             else:
                 insights = {"error": f"No employee found for '{search_term}'"}
                 selected_name = search_term
+
             show_modal = True
 
     return render_template(
@@ -324,7 +339,6 @@ def visualization():
 #
 
 from associate_insights import (
-    get_associate_dataframe,
     get_associate_names,
     get_associate_insights,
 )
@@ -339,14 +353,17 @@ def associate_insights():
 
     associate_names = get_associate_names()
 
-    selected_name = request.form.get("associate_name")
-
+    selected_name = None
     insights = {}
     graphs_html = []
 
-    if selected_name:
+    raw_input = request.form.get("associate_name", "").strip()
 
-        insights, figs = get_associate_insights(selected_name)
+    if raw_input:
+
+        selected_name = raw_input
+
+        insights, figs = get_associate_insights(raw_input)
 
         graphs_html = [f.to_html(full_html=False) for f in figs]
 
