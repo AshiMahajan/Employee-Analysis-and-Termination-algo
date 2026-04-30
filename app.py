@@ -16,7 +16,6 @@ from csv_routes import csv_bp
 #
 from datetime import datetime
 
-
 # @app.context_processor
 # def inject_globals():
 #     hour = datetime.now().hour
@@ -517,6 +516,11 @@ def add_associate():
 
         elif action == "proceed":
             associate_data = session.get("new_associate", {})
+            if "salary" in associate_data:
+                try:
+                    associate_data["salary"] = int(associate_data["salary"])
+                except:
+                    associate_data["salary"] = None
             mongo.db.associates.insert_one(associate_data)
             flash("Associate added successfully!")
             session.pop("new_associate", None)
