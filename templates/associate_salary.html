@@ -1,51 +1,185 @@
 {% extends "base.html" %}
+{% block title %}Salary Analysis{% endblock %}
 {% block content %}
-<div class="container">
-  <h2>💰 Salary Predictor</h2>
 
-  <form method="POST">
-    <div class="form-group">
-      <label>Select Associate</label>
-      <select name="associate_name" class="form-control" required>
-        <option value="">-- Choose an Associate --</option>
-        {% for name in associate_names %}
-        <option value="{{ name }}" {% if selected_name == name %}selected{% endif %}>
-          {{ name }}
-        </option>
-        {% endfor %}
-      </select>
-    </div>
-    <button type="submit" class="btn btn-success mt-2">Get Salary Report</button>
+<style>
+  .salary-wrap { max-width: 780px; }
+
+  .page-title {
+    font-size: 18px; font-weight: 600;
+    margin-bottom: 22px; color: var(--text);
+  }
+
+  .select-bar { display: flex; gap: 8px; margin-bottom: 28px; }
+  .select-bar select {
+    flex: 1; padding: 10px 13px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13px; font-family: var(--font);
+    background: var(--surface); color: var(--text);
+    outline: none; cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .select-bar select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+  }
+  .select-bar button {
+    background: var(--blue); color: #fff;
+    border: none; padding: 10px 22px;
+    border-radius: var(--radius-md);
+    font-size: 13px; font-family: var(--font);
+    cursor: pointer; font-weight: 500;
+    white-space: nowrap; transition: background 0.15s;
+  }
+  .select-bar button:hover { background: var(--blue-dark); }
+
+  .result-header {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px; margin-bottom: 16px;
+  }
+  .result-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #EAF3DE; color: #3B6D11;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; flex-shrink: 0;
+  }
+  .result-meta { flex: 1; }
+  .result-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .result-sub  { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+  .salary-badge {
+    background: #EAF3DE; color: #3B6D11;
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 13px; font-weight: 600; white-space: nowrap;
+  }
+
+  .detail-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden; margin-bottom: 16px;
+  }
+  .detail-card-title {
+    padding: 12px 18px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 0.5px solid var(--border);
+    background: #fafafa;
+  }
+  .detail-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 18px;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 13px; font-family: var(--font);
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { color: var(--text-muted); }
+  .detail-val   { font-weight: 500; color: var(--text); }
+
+  .charts-section { margin-bottom: 20px; }
+  .charts-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 12px;
+  }
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px; overflow: hidden;
+  }
+  .chart-card img { width: 100%; height: auto; border-radius: var(--radius-md); display: block; }
+
+  .empty-state { text-align: center; padding: 52px 20px; color: var(--text-faint); font-size: 13px; }
+  .empty-icon  { font-size: 32px; margin-bottom: 10px; }
+  .empty-msg   { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+</style>
+
+<div class="salary-wrap">
+  <div class="page-title">Salary Analysis</div>
+
+  <form method="POST" class="select-bar">
+    <select name="associate_name" required>
+      <option value="">— Select an associate —</option>
+      {% for name in associate_names %}
+        <option value="{{ name }}" {% if selected_name == name %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Analyse</button>
   </form>
 
   {% if result %}
-  <div class="alert alert-info mt-3">
-    Salary analysis for <b>{{ selected_name }}</b>
-  </div>
 
-  <!-- Salary details -->
-  <div class="mt-3">
-    <h5>Employee Salary Details</h5>
-    <ul>
+    <div class="result-header">
+      <div class="result-avatar">
+        {{ selected_name.split(' ') | map('first') | join('') | upper | truncate(2, false, '') }}
+      </div>
+      <div class="result-meta">
+        <div class="result-name">{{ selected_name }}</div>
+        <div class="result-sub">Salary report generated</div>
+      </div>
+      {% if result.text_output %}
+        <span class="salary-badge">{{ result.text_output[0] }}</span>
+      {% endif %}
+    </div>
+
+    {% if result.text_output %}
+    <div class="detail-card">
+      <div class="detail-card-title">Salary Details</div>
       {% for line in result.text_output %}
-      <li>{{ line }}</li>
+        {% if line and line | trim %}
+          {% if ':' in line %}
+            <div class="detail-row">
+              <span class="detail-label">{{ line.split(':', 1)[0] | trim }}</span>
+              <span class="detail-val">{{ line.split(':', 1)[1] | trim }}</span>
+            </div>
+          {% else %}
+            <div class="detail-row">
+              <span class="detail-label">{{ line | trim }}</span>
+            </div>
+          {% endif %}
+        {% endif %}
       {% endfor %}
-    </ul>
-  </div>
+    </div>
+    {% endif %}
 
-  <!-- Salary charts -->
-  {% if result.figures %}
-  <div class="mt-3">
-    <h5>Visualizations</h5>
-    {% for fig in result.figures %}
-    <img
-      src="data:image/png;base64,{{ fig }}"
-      alt="Salary Chart"
-      class="img-fluid mb-3"
-    />
-    {% endfor %}
-  </div>
+    {% if result.figures %}
+    <div class="charts-section">
+      <div class="charts-label">Visualizations</div>
+      <div class="charts-grid">
+        {% for fig in result.figures %}
+          <div class="chart-card">
+            <img src="data:image/png;base64,{{ fig }}" alt="Salary Chart" />
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  {% elif selected_name %}
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <div class="empty-msg">No salary data found</div>
+      No results available for "{{ selected_name }}".
+    </div>
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">💰</div>
+      <div class="empty-msg">Select an associate to begin</div>
+      Choose a name from the dropdown above to generate a salary report.
+    </div>
   {% endif %}
-  {% endif %}
+
 </div>
+
 {% endblock %}
