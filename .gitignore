@@ -3,5 +3,6 @@ __pycache__/
 *.log
 venv/
 .txt
-features.pkl
+# features.pkl
 scaler.pkl
+example.py
